@@ -1,0 +1,8 @@
+<!-- myapp/templates/account/logout.html -->
+
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>You have been logged out.</h2>
+<p><a href="{% url 'account_login' %}">Login again</a></p>
+{% endblock %}
