@@ -17,8 +17,8 @@ if os.path.isfile('env.py'):
     import env
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-# BASE_DIR = Path(__file__).resolve().parent.parent
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = Path(__file__).resolve().parent.parent
+#BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 print(BASE_DIR)
 
 
@@ -81,6 +81,10 @@ TEMPLATES = [
     },
 ]
 
+# ACCOUNT_FORMS = {
+#     'signup': 'LLM_Metadata.forms.CustomSignupForm',
+# }
+
 WSGI_APPLICATION = 'main.wsgi.application'
 
 
@@ -99,6 +103,10 @@ DATABASES = {
     'default': dj_database_url.parse(os.environ.get("DATABASE_URL"))
 }
 
+CSRF_TRUSTED_ORIGINS = [
+    "https://*.codeinstitute-ide.net/",
+    "https://*.herokuapp.com"
+]
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -154,10 +162,42 @@ AUTHENTICATION_BACKENDS = (
 SITE_ID = 1
 
 # Configure Allauth settings
-ACCOUNT_EMAIL_VERIFICATION = 'none'  # No email verification required
+ACCOUNT_EMAIL_VERIFICATION = 'none'
 ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_AUTHENTICATION_METHOD = 'username_email'  # Users can log in with either username or email
-ACCOUNT_USERNAME_REQUIRED = True
-ACCOUNT_UNIQUE_EMAIL = True
-LOGIN_REDIRECT_URL = '/'  # Redirect after login
-LOGOUT_REDIRECT_URL = '/'  # Redirect after logout
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/accounts/login/'
+
+
+# SOCIALACCOUNT_PROVIDERS = {
+#     'google': {
+#         'SCOPE': ['profile', 'email'],
+#         'AUTH_PARAMS': {'access_type': 'online'},
+#     },
+#     'github': {
+#         'SCOPE': ['user', 'repo'],
+#     },
+#     'linkedin_oauth2': {
+#         'SCOPE': ['r_liteprofile', 'r_emailaddress'],
+#         'PROFILE_FIELDS': ['id', 'first-name', 'last-name', 'email-address'],
+#     }
+# }
+
+# # Add the keys
+# SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = 'your-google-client-id'
+# SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = 'your-google-client-secret'
+
+# SOCIAL_AUTH_GITHUB_KEY = 'your-github-client-id'
+# SOCIAL_AUTH_GITHUB_SECRET = 'your-github-client-secret'
+
+# SOCIAL_AUTH_LINKEDIN_OAUTH2_KEY = 'your-linkedin-client-id'
+# SOCIAL_AUTH_LINKEDIN_OAUTH2_SECRET = 'your-linkedin-client-secret'
+
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
