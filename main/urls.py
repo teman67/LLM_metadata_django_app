@@ -19,7 +19,7 @@ from django.urls import path, include
 
 
 urlpatterns = [
+    path('accounts/', include('allauth.urls')), # This line includes the urls.py file from the allauth app
     path('admin/', admin.site.urls),
-    path('accounts/', include('allauth.urls')),
-    path('', include('LLM_Metadata.urls')),    
+    path('', include('LLM_Metadata.urls'), name="LLM_Metadata-urls"), # This line includes the urls.py file from the LLM_Metadata app
 ]
