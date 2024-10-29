@@ -7,3 +7,17 @@ class ConversationForm(forms.ModelForm):
     class Meta:
         model = Conversation
         fields = ['content']
+
+
+class QuestionForm(forms.Form):
+    question = forms.CharField(widget=forms.Textarea, label="Your Question")
+    model = forms.ChoiceField(choices=[
+        ('mixtral:latest', 'Mixtral'),
+        ('nemotron:latest', 'Nemotron'),
+        ('mistral-large:latest', 'Mistral Large'),
+        ('llama3.1:latest', 'Llama 3.1')
+    ], label="Select Model")
+    max_tokens = forms.IntegerField(initial=600, min_value=1, label="Max Tokens")
+    temperature = forms.FloatField(initial=0.7, min_value=0, max_value=1, label="Temperature")
+    top_k = forms.IntegerField(initial=40, min_value=0, label="Top K")
+    top_p = forms.FloatField(initial=0.9, min_value=0, max_value=1, label="Top P")

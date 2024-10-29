@@ -19,6 +19,9 @@ class Conversation(models.Model):
     timestamp = models.DateTimeField(default=timezone.now)
     username = models.CharField(max_length=100)
     conversation_id = models.UUIDField(default=uuid.uuid4, editable=False)
+    temperature = models.FloatField(null=True, blank=True)
+    top_k = models.IntegerField(null=True, blank=True)
+    top_p = models.FloatField(null=True, blank=True)
 
     class Meta:
         db_table = 'conversations'

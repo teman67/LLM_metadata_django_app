@@ -1,53 +1,18 @@
 from django.shortcuts import render, redirect
 from django.views.generic import TemplateView
 from .models import Conversation
-from .forms import ConversationForm
+from .forms import ConversationForm, QuestionForm
 from django.contrib.auth.decorators import login_required
-from django.utils import timezone
-import uuid
-# myapp/views.py
-from django.shortcuts import render, redirect
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse
 from .models import Conversation
 from django.utils import timezone
-import os
-import requests
-import uuid
 from .utils import query_api  # Assuming query_api is refactored to a helper function
+import uuid
+
 
 def home(request):
-    if request.method == "POST":
-        # Handle submission for user questions
-        user_question = request.POST.get("user_question")
-        selected_model = request.POST.get("selected_model", "mixtral:latest")
-        language = request.POST.get("language", "English")
-        conversation_id = uuid.uuid4()
-
-        # Prepare API messages and query the model
-        api_messages = [{"role": "user", "content": user_question}]
-        result = query_api(api_messages, selected_model)
-
-        if "error" in result:
-            return JsonResponse({"error": result['error']})
-
-        # Save both user message and response to the database
-        user_msg = Conversation.objects.create(
-            role="user", content=user_question, username=request.user.username, conversation_id=conversation_id
-        )
-        response = Conversation.objects.create(
-            role="assistant", content=result["content"], model_name=selected_model, token_usage=result["response_tokens"],
-            elapsed_time=result["elapsed_time"], username=request.user.username, conversation_id=conversation_id
-        )
-
-        return JsonResponse({
-            "response": result["content"],
-            "elapsed_time": result["elapsed_time"],
-            "tokens": result["response_tokens"]
-        })
-
-    # Display the form with any previous conversation history
-    conversations = Conversation.objects.filter(username=request.user.username)
-    return render(request, 'home.html', {'conversations': conversations})
+    
+    return render(request, 'home.html')
 
 
 @login_required
@@ -80,6 +45,58 @@ def conversation_view(request):
     conversations = Conversation.objects.filter(username=request.user).order_by('-timestamp')
     return render(request, 'LLM_Metadata/conversation.html', {'form': form, 'conversations': conversations})
 
+@login_required
+def ask_question_view(request):
+    if request.method == 'POST':
+        form = QuestionForm(request.POST)
+        if form.is_valid():
+            question = form.cleaned_data['question']
+            model = form.cleaned_data['model']
+            max_tokens = form.cleaned_data['max_tokens']
+            temperature = form.cleaned_data['temperature']
+            top_k = form.cleaned_data['top_k']
+            top_p = form.cleaned_data['top_p']
 
-# class Home(TemplateView):
-#     template_name = 'home.html'
+            # Prepare messages for the API call
+            messages = [{"role": "user", "content": question}]
+
+            # Query the API
+            response = query_api(messages, model, temperature, max_tokens, top_k, top_p)
+
+            if 'error' not in response:
+                # Save user question with additional parameters
+                conversation = Conversation.objects.create(
+                    role='user',
+                    content=question,
+                    username=request.user.username,
+                    conversation_id=uuid.uuid4(),
+                    timestamp=timezone.now(),
+                    model_name=model,
+                    token_usage=response['response_tokens'],
+                    elapsed_time=response['elapsed_time'],
+                    temperature=temperature,
+                    top_k=top_k,
+                    top_p=top_p,
+                )
+                
+                # Save AI response with the same conversation ID
+                Conversation.objects.create(
+                    role='assistant',
+                    content=response['content'],
+                    username=request.user.username,
+                    conversation_id=conversation.conversation_id,
+                    timestamp=timezone.now(),
+                    model_name=model,
+                    token_usage=response['response_tokens'],
+                    elapsed_time=response['elapsed_time'],
+                    temperature=temperature,
+                    top_k=top_k,
+                    top_p=top_p,
+                )
+
+                return redirect('conversation')  # Redirect to the conversation history page
+
+    else:
+        form = QuestionForm()
+
+    return render(request, 'LLM_Metadata/ask_question.html', {'form': form})
