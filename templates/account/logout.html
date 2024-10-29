@@ -5,25 +5,45 @@
 {% block head_title %}{% trans "Sign Out" %}{% endblock %}
 
 {% block content %}
-<div class="container">
+<div class="container mt-5">
     <div class="row">
-        <div class="col-md-8 mt-3 offset-md-2">
-            <h3>{% trans "Sign Out" %}</h3>
-
-            <p>{% trans 'Are you sure you want to sign out?' %}</p>
+        <div class="col-md-8 mt-3 offset-md-2 text-center">
+            <h3 class="text-danger">{% trans "Sign Out" %}</h3>
+            <p class="lead text-muted">{% trans 'Are you sure you want to sign out?' %}</p>
         </div>
     </div>
     <div class="row">
         <div class="col-md-8 mt-3 offset-md-2">
-
-            <form method="post" action="{% url 'account_logout' %}">
+            <form method="post" action="{% url 'account_logout' %}" class="p-4 border rounded shadow text-center">
                 {% csrf_token %}
                 {% if redirect_field_value %}
                 <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
                 {% endif %}
-                <button class="btn btn-signup right" type="submit">{% trans 'Sign Out' %}</button>
+                <button class="btn btn-danger btn-lg w-100" type="submit">{% trans 'Sign Out' %} &raquo;</button>
             </form>
         </div>
     </div>
 </div>
+
+<style>
+    h3 {
+        font-family: 'Lato', sans-serif; /* Custom font for headings */
+        font-weight: 700; /* Bold for emphasis */
+    }
+    .lead {
+        font-family: 'Roboto', sans-serif; /* Custom font for body text */
+        font-weight: 400; /* Normal weight */
+    }
+    form {
+        background-color: #f8f9fa; /* Light background for the form */
+    }
+    button.btn-danger {
+        background-color: #dc3545; /* Danger button color */
+        border: none; /* Remove border */
+        font-size: 1.2em; /* Larger text for button */
+    }
+    button.btn-danger:hover {
+        background-color: #c82333; /* Darker shade on hover */
+    }
+</style>
 {% endblock %}

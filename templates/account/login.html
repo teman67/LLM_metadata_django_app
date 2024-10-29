@@ -6,29 +6,47 @@
 {% block head_title %}{% trans "Sign In" %}{% endblock %}
 
 {% block content %}
-
-<div class="container">
+<div class="container mt-5">
     <div class="row">
-        <div class="col-md-8 mt-3 offset-md-2">
-            <h3>{% trans "Sign In" %}</h3>
-
-            <p>{% blocktrans %}Welcome back to the code|star blog. To leave a comment or like a post, please log in. If
-                you
-                have not created an account yet, then <a class="link" href="{{ signup_url }}">sign up</a>
-                first.{% endblocktrans %}</p>
+        <div class="col-md-8 mt-3 offset-md-2 text-center">
+            <h3 class="text-primary">{% trans "Sign In" %}</h3>
+            <p class="lead text-muted">{% blocktrans %}Welcome back to the MetaData Schema Builder! To leave a comment or like a post, please log in. If you have not created an account yet, then <a class="link" href="{{ signup_url }}">sign up</a> first.{% endblocktrans %}</p>
         </div>
     </div>
+    
     <div class="row">
         <div class="col-md-8 mt-3 offset-md-2">
-            <form class="login" method="POST" action="{% url 'account_login' %}">
+            <form class="login p-4 border rounded shadow" method="POST" action="{% url 'account_login' %}">
                 {% csrf_token %}
                 {{ form.as_p }}
                 {% if redirect_field_value %}
                 <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
                 {% endif %}
-                <button class="btn btn-signup right" type="submit">{% trans "Sign In" %}</button>
+                <button class="btn btn-primary btn-lg w-100" type="submit">{% trans "Sign In" %}</button>
             </form>
         </div>
     </div>
 </div>
+
+<style>
+    h3 {
+        font-family: 'Lato', sans-serif; /* Custom font for headings */
+        font-weight: 700; /* Bold for emphasis */
+    }
+    .lead {
+        font-family: 'Roboto', sans-serif; /* Custom font for body text */
+        font-weight: 400; /* Normal weight */
+    }
+    .login {
+        background-color: #f8f9fa; /* Light background for the form */
+    }
+    button.btn-primary {
+        background-color: #007bff; /* Primary button color */
+        border: none; /* Remove border */
+        font-size: 1.2em; /* Larger text for button */
+    }
+    button.btn-primary:hover {
+        background-color: #0056b3; /* Darker shade on hover */
+    }
+</style>
 {% endblock %}
