@@ -2,20 +2,57 @@
 
 {% block content %}
 <div class="container mt-4">
-    <h2>Conversation</h2>
-    <form method="POST" class="mb-3">
+    <h2 class="text-center text-primary">AI Conversations</h2>
+    <form method="POST" class="mb-4 border p-4 rounded shadow">
         {% csrf_token %}
+        <h4 class="text-secondary">Start a New Conversation</h4>
         {{ form.as_p }}
-        <button type="submit" class="btn btn-primary">Submit</button>
+        <button type="submit" class="btn btn-success">Submit</button>
     </form>
     
-    <h3>Conversation History</h3>
-    <div class="conversation-history">
+    <h3 class="text-secondary">Conversation History</h3>
+    <div class="conversation-history border p-3 rounded shadow">
         {% for conversation in conversations %}
-            <div class="alert {% if conversation.role == 'user' %}alert-primary{% else %}alert-secondary{% endif %}">
+            <div class="alert {% if conversation.role == 'user' %}alert-primary{% else %}alert-light{% endif %} my-2">
                 <strong>{{ conversation.role|capfirst }}:</strong> {{ conversation.content }}
+            </div>
+        {% empty %}
+            <div class="alert alert-warning">
+                No conversation history available.
             </div>
         {% endfor %}
     </div>
 </div>
+
+<style>
+    .conversation-history {
+        background-color: #f0f8ff; /* Light background for conversation history */
+        border-radius: 10px; /* Rounded corners */
+        max-height: 400px; /* Set max height for overflow */
+        overflow-y: auto; /* Enable scrolling */
+    }
+    h2 {
+        font-family: 'Lato', sans-serif; /* Custom font for headings */
+        font-weight: 700;
+    }
+    h3 {
+        font-family: 'Roboto', sans-serif; /* Custom font for subheadings */
+        font-weight: 500;
+    }
+    .alert-primary {
+        background-color: #d1e7dd; /* User message background color */
+        color: #0f5132; /* User message text color */
+    }
+    .alert-light {
+        background-color: #e2e3e5; /* AI message background color */
+        color: #383d41; /* AI message text color */
+    }
+    button.btn-success {
+        background-color: #198754; /* Success button color */
+        border: none; /* Remove border */
+    }
+    button.btn-success:hover {
+        background-color: #157347; /* Darker shade on hover */
+    }
+</style>
 {% endblock %}

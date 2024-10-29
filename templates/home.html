@@ -1,43 +1,37 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>LLM Model Query</title>
-</head>
-<body>
-    <h1>Ask a Question</h1>
-    <form method="post" action=".">
-        {% csrf_token %}
-        <label for="user_question">Your Question:</label>
-        <textarea name="user_question" rows="4" cols="50"></textarea><br>
-
-        <label for="selected_model">Select Model:</label>
-        <select name="selected_model">
-            <option value="mixtral:latest">Mixtral: Latest</option>
-            <option value="nemotron:latest">Nemotron: Latest</option>
-            <option value="mistral-large:latest">Mistral Large: Latest</option>
-            <option value="llama3.1:latest">Llama 3.1: Latest</option>
-        </select><br>
-
-        <label for="language">Language:</label>
-        <select name="language">
-            <option value="English">English</option>
-            <option value="German">German</option>
-        </select><br>
-
-        <button type="submit">Submit Question</button>
-    </form>
-
-    <h2>Conversation History</h2>
-    {% for conversation in conversations %}
-        <div style="background-color: {{ forloop.counter0|divisibleby:2|yesno:'#fc9642,#5aad78' }};">
-            <strong>{{ conversation.role }}:</strong> {{ conversation.content }}
-            <small> - {{ conversation.timestamp }}</small>
+<div class="content-wrapper text-center" style="height: 100vh; display: flex; align-items: center; justify-content: center; background-color: rgba(0, 0, 0, 0.6); border-radius: 10px;">
+    <div class="container">
+        <!-- Project Summary -->
+        <h2 class="display-4 text-light">Welcome to the MetaData Schema Builder Interface</h2>
+        <p class="lead text-light mt-3">
+            Generate a metadata schema from an experimental machine data file. Using the power of a large language model (LLM), this tool analyzes input data and outputs a structured JSON file.
+        </p>
+        
+        <!-- Project Information -->
+        <div class="alert alert-info mt-4">
+            <strong>Quick Project Summary</strong><br>
+            Standardize data across experiments and systems with ease. This tool simplifies metadata schema creation for improved data consistency.
         </div>
-    {% endfor %}
-</body>
-</html>
+
+        <!-- README Link -->
+        <p class="mt-4">
+            <a href="https://github.com/teman67/LLM_Metadata/blob/main/README.md" class="btn btn-outline-light btn-lg" target="_blank" style="transition: background-color 0.3s, color 0.3s;">
+                View Project README
+            </a>
+        </p>
+
+        <!-- Key Features Section -->
+        <div class="text-start mt-4">
+            <h5 class="text-light">Key Features:</h5>
+            <ul class="list-unstyled text-light">
+                <li><strong>1 - File Upload:</strong> Upload your experimental machine data file in the supported format.</li>
+                <li><strong>2 - JSON Output:</strong> Automated Schema Generation: An LLM model generates a metadata schema in JSON format.</li>
+                <li><strong>3 - User-Friendly Interface:</strong> Designed for ease of use, even for users with minimal technical expertise.</li>
+            </ul>
+        </div>
+    </div>
+</div>
 {% endblock %}
