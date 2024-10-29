@@ -1,34 +1,25 @@
+# myapp/models.py
 from django.db import models
-from django.contrib.auth.models import User
+from django.utils import timezone
+import uuid
 
-STATUS = ((0, "Draft"), (1, "Published"))
-
-class Post(models.Model):
-    title = models.CharField(max_length=200, unique=True)
-    slug = models.SlugField(max_length=200, unique=True)
-    author = models.ForeignKey(
-    User, on_delete=models.CASCADE, related_name="blog_posts")
+class Conversation(models.Model):
+    """
+    Represents a conversation message stored in the database.
+    """
+    ROLE_CHOICES = [
+        ('user', 'User'),
+        ('assistant', 'Assistant'),
+    ]
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES)
     content = models.TextField()
-    created_on = models.DateTimeField(auto_now_add=True)
-    updated_on = models.DateTimeField(auto_now=True)
-    status = models.IntegerField(choices=[(0, "Draft"), (1, "Publish")])
+    model_name = models.CharField(max_length=100, null=True, blank=True)
+    token_usage = models.IntegerField(null=True, blank=True)
+    elapsed_time = models.FloatField(null=True, blank=True)
+    timestamp = models.DateTimeField(default=timezone.now)
+    username = models.CharField(max_length=100)
+    conversation_id = models.UUIDField(default=uuid.uuid4, editable=False)
 
     class Meta:
-        ordering = ['-created_on']
-
-    def __str__(self):
-        return f"The title of this post is {self.title}"
-    
-class Comment(models.Model):
-    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="comments")
-    name = models.CharField(max_length=80)
-    email = models.EmailField()
-    body = models.TextField()
-    created_on = models.DateTimeField(auto_now_add=True)
-    approved = models.BooleanField(default=False)
-
-    class Meta:
-        ordering = ['created_on']
-
-    def __str__(self):
-        return 'Comment {} by {}'.format(self.body, self.name)
+        db_table = 'conversations'
+        ordering = ['-timestamp']
