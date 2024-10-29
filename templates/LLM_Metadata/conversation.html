@@ -9,6 +9,15 @@
         {% for conversation in conversations %}
             <div class="alert {% if conversation.role == 'user' %}alert-primary{% else %}alert-light{% endif %} my-2">
                 <strong>{{ conversation.role|capfirst }}:</strong> {{ conversation.content }}
+                <br>
+                <small>
+                    <strong>Model:</strong> {{ conversation.model_name }} |
+                    <strong>Tokens:</strong> {{ conversation.token_usage }} |
+                    <strong>Time:</strong> {{ conversation.elapsed_time }} seconds |
+                    <strong>Temperature:</strong> {{ conversation.temperature }} |
+                    <strong>Top K:</strong> {{ conversation.top_k }} |
+                    <strong>Top P:</strong> {{ conversation.top_p }}
+                </small>
             </div>
         {% empty %}
             <div class="alert alert-warning">
@@ -22,7 +31,7 @@
     .conversation-history {
         background-color: #f0f8ff; /* Light background for conversation history */
         border-radius: 10px; /* Rounded corners */
-        max-height: 400px; /* Set max height for overflow */
+        max-height: 80vh; /* Set max height for overflow */
         overflow-y: auto; /* Enable scrolling */
     }
     h2 {
