@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Conversation</h2>
+    <form method="POST" class="mb-3">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+    
+    <h3>Conversation History</h3>
+    <div class="conversation-history">
+        {% for conversation in conversations %}
+            <div class="alert {% if conversation.role == 'user' %}alert-primary{% else %}alert-secondary{% endif %}">
+                <strong>{{ conversation.role|capfirst }}:</strong> {{ conversation.content }}
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

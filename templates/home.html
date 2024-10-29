@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>LLM Model Query</title>
+</head>
+<body>
+    <h1>Ask a Question</h1>
+    <form method="post" action=".">
+        {% csrf_token %}
+        <label for="user_question">Your Question:</label>
+        <textarea name="user_question" rows="4" cols="50"></textarea><br>
+
+        <label for="selected_model">Select Model:</label>
+        <select name="selected_model">
+            <option value="mixtral:latest">Mixtral: Latest</option>
+            <option value="nemotron:latest">Nemotron: Latest</option>
+            <option value="mistral-large:latest">Mistral Large: Latest</option>
+            <option value="llama3.1:latest">Llama 3.1: Latest</option>
+        </select><br>
+
+        <label for="language">Language:</label>
+        <select name="language">
+            <option value="English">English</option>
+            <option value="German">German</option>
+        </select><br>
+
+        <button type="submit">Submit Question</button>
+    </form>
+
+    <h2>Conversation History</h2>
+    {% for conversation in conversations %}
+        <div style="background-color: {{ forloop.counter0|divisibleby:2|yesno:'#fc9642,#5aad78' }};">
+            <strong>{{ conversation.role }}:</strong> {{ conversation.content }}
+            <small> - {{ conversation.timestamp }}</small>
+        </div>
+    {% endfor %}
+</body>
+</html>
+{% endblock %}
