@@ -5,6 +5,7 @@
 {% url 'account_signup' as signup_url %}
 {% url 'account_logout' as logout_url %}
 {% url 'conversation' as conversation_url %} 
+{% url 'ask_question' as ask_question_url %}
 
 <!DOCTYPE html>
 <html class="h-100" lang="en">
@@ -55,6 +56,9 @@
                         <a class="nav-link {% if request.path == home_url %}active{% endif %}" href="{% url 'home' %}">Home</a>
                     </li>
                     {% if user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.path == ask_question_url %}active{% endif %}" href="{% url 'ask_question' %}">Ask Question</a>
+                    </li>
                     <li class="nav-item">
                         <a class="nav-link {% if request.path == conversation_url %}active{% endif %}" href="{% url 'conversation' %}">Conversations</a>
                     </li>
