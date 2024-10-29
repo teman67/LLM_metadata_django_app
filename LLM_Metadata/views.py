@@ -78,7 +78,7 @@ def conversation_view(request):
         form = ConversationForm()
     
     conversations = Conversation.objects.filter(username=request.user).order_by('-timestamp')
-    return render(request, 'conversation.html', {'form': form, 'conversations': conversations})
+    return render(request, 'LLM_Metadata/conversation.html', {'form': form, 'conversations': conversations})
 
 
 # class Home(TemplateView):
