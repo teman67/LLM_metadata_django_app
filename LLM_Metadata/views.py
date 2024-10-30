@@ -9,6 +9,8 @@ from .models import Conversation
 from django.utils import timezone
 from .utils import query_api 
 import uuid
+from django.contrib import messages as django_messages 
+
 
 
 def home(request):
@@ -46,16 +48,10 @@ def conversation_view(request):
     return render(request, 'LLM_Metadata/conversation.html', {'form': form, 'conversations': conversations})
 
 
-import uuid
-from django.contrib import messages as django_messages  # Rename messages import
-from django.contrib.auth.decorators import login_required
-from django.utils import timezone
-from django.shortcuts import render, redirect
-from .forms import QuestionForm
-from .models import Conversation
-
 @login_required
 def ask_question_view(request):
+    latest_conversation = None  # Initialize the variable to store the latest conversation
+    
     if request.method == 'POST':
         form = QuestionForm(request.POST)
         if form.is_valid():
@@ -66,8 +62,11 @@ def ask_question_view(request):
             top_k = form.cleaned_data['top_k']
             top_p = form.cleaned_data['top_p']
 
+            # Generate a unique conversation ID for this question-response pair
+            conversation_id = uuid.uuid4()
+
             # Prepare messages for the API call
-            api_messages = [{"role": "user", "content": question}]  # Rename messages to api_messages
+            api_messages = [{"role": "user", "content": question}]
 
             try:
                 # Query the API
@@ -75,11 +74,11 @@ def ask_question_view(request):
 
                 if 'error' not in response:
                     # Save user question with additional parameters
-                    conversation = Conversation.objects.create(
+                    user_conversation = Conversation.objects.create(
                         role='user',
                         content=question,
                         username=request.user.username,
-                        conversation_id=uuid.uuid4(),
+                        conversation_id=conversation_id,
                         timestamp=timezone.now(),
                         model_name=model,
                         token_usage=response['response_tokens'],
@@ -90,11 +89,11 @@ def ask_question_view(request):
                     )
                     
                     # Save AI response with the same conversation ID
-                    Conversation.objects.create(
+                    assistant_conversation = Conversation.objects.create(
                         role='assistant',
                         content=response['content'],
                         username=request.user.username,
-                        conversation_id=conversation.conversation_id,
+                        conversation_id=conversation_id,
                         timestamp=timezone.now(),
                         model_name=model,
                         token_usage=response['response_tokens'],
@@ -103,20 +102,29 @@ def ask_question_view(request):
                         top_k=top_k,
                         top_p=top_p,
                     )
-
-                    return redirect('conversation')  # Redirect to the conversation history page
+                    
+                    # Retrieve the latest question-response pair
+                    latest_conversation = Conversation.objects.filter(
+                        conversation_id=conversation_id
+                    ).order_by('timestamp')
                 
                 else:
                     # If the response contains an error
-                    error_message = mark_safe(f"An error occurred while contacting the model: Please contact <a href='mailto:amirhossein.bayani@gmail.com'>admin</a>")  # Use mark_safe
+                    error_message = mark_safe(
+                        f"An error occurred while contacting the model: Please contact <a href='mailto:amirhossein.bayani@gmail.com'>admin</a>"
+                    )
                     django_messages.error(request, error_message)
-                    
+
             except Exception as e:
                 # Handle exceptions raised during the API call
-                error_message = mark_safe(f"An error occurred while contacting the model: Please contact <a href='mailto:amirhossein.bayani@gmail.com'>admin</a>")  # Use mark_safe
+                error_message = mark_safe(
+                    f"An error occurred while contacting the model: Please contact <a href='mailto:amirhossein.bayani@gmail.com'>admin</a>"
+                )
                 django_messages.error(request, error_message)
 
     else:
         form = QuestionForm()
 
-    return render(request, 'LLM_Metadata/ask_question.html', {'form': form})
+    # Pass the latest conversation (question and response) to the template
+    return render(request, 'LLM_Metadata/ask_question.html', {'form': form, 'conversations': latest_conversation})
+
