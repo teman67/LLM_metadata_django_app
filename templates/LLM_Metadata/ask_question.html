@@ -70,5 +70,21 @@
             <button type="submit" class="btn btn-primary">Submit Question</button>
         </div>
     </form>
+
+    <!-- Conversation History Section -->
+    <h3 class="text-center text-secondary mt-4">Latest Conversation</h3>
+    <div class="conversation-history border p-3 rounded bg-light">
+        {% if conversations %}
+            {% for conversation in conversations %}
+                <div class="conversation-item mb-2">
+                    <p><strong>{{ conversation.role|capfirst }}:</strong> {{ conversation.content }}</p>
+                    <p class="text-muted small">Model: {{ conversation.model_name }} | Tokens: {{ conversation.token_usage }} | Time: {{ conversation.elapsed_time }}s</p>
+                </div>
+                <hr>
+            {% endfor %}
+        {% else %}
+            <p class="text-muted">No recent conversation available.</p>
+        {% endif %}
+    </div>
 </div>
 {% endblock %}
