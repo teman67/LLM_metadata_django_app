@@ -116,7 +116,7 @@ def ask_question_view(request):
                     
                 else:
                     error_message = mark_safe(
-                        f"An error occurred while contacting the model: Please contact <a href='mailto:amirhossein.bayani@gmail.com'>admin</a>"
+                        f"An error occurred while contacting the model (API connection issue): Please contact <a href='mailto:amirhossein.bayani@gmail.com'>admin</a>"
                     )
                     django_messages.error(request, error_message)
 
@@ -137,4 +137,6 @@ def ask_question_view(request):
         conversations = []
 
     return render(request, 'LLM_Metadata/ask_question.html', {'form': form, 'conversations': conversations})
+
+
 
