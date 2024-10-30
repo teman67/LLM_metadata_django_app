@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-
+{% load conversation_filters %}
 {% block content %}
 <div class="container mt-4">
     <h2 class="text-center text-primary">AI Conversations</h2>
@@ -7,48 +7,72 @@
     <h3 class="text-secondary">Conversation History</h3>
     <div class="conversation-history border p-3 rounded shadow">
         {% for conversation in conversations %}
-            <div class="alert {% if conversation.role == 'user' %}alert-primary{% else %}alert-light{% endif %} my-2">
-                <strong>{{ conversation.role|capfirst }}:</strong> {{ conversation.content }}
-                <br>
-                <small>
-                    <strong>Model:</strong> {{ conversation.model_name }} |
-                    <strong>Tokens:</strong> {{ conversation.token_usage }} |
-                    <strong>Time:</strong> {{ conversation.elapsed_time }} seconds |
-                    <strong>Temperature:</strong> {{ conversation.temperature }} |
-                    <strong>Top K:</strong> {{ conversation.top_k }} |
-                    <strong>Top P:</strong> {{ conversation.top_p }}
-                </small>
+        {% if conversation.role == 'user' %}
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <div class="alert alert-primary">
+                    <strong>{{ conversation.role|capfirst }}:</strong> {{ conversation.content }}
+                </div>
             </div>
+            <div class="col-md-6">
+                {% with assistant=conversation.conversation_id|get_assistant_for_user %}
+                {% if assistant %}
+                <div class="alert alert-light">
+                    <strong>{{ assistant.role|capfirst }}:</strong> {{ assistant.content }}
+                    <br>
+                    <small>
+                        <strong>Model:</strong> {{ assistant.model_name }} |
+                        <strong>Tokens:</strong> {{ assistant.token_usage }} |
+                        <strong>Time:</strong> {{ assistant.elapsed_time }} seconds |
+                        <strong>Temperature:</strong> {{ assistant.temperature }} |
+                        <strong>Top K:</strong> {{ assistant.top_k }} |
+                        <strong>Top P:</strong> {{ assistant.top_p }}
+                    </small>
+                </div>
+                {% else %}
+                <div class="alert alert-warning">
+                    Awaiting assistant response...
+                </div>
+                {% endif %}
+                {% endwith %}
+
+            </div>
+        </div>
+        {% endif %}
         {% empty %}
-            <div class="alert alert-warning">
-                No conversation history available.
-            </div>
+        <div class="alert alert-warning">
+            No conversation history available.
+        </div>
         {% endfor %}
     </div>
 </div>
 
 <style>
     .conversation-history {
-        background-color: #f0f8ff; /* Light background for conversation history */
-        border-radius: 10px; /* Rounded corners */
-        max-height: 80vh; /* Set max height for overflow */
-        overflow-y: auto; /* Enable scrolling */
+        background-color: #f0f8ff;
+        border-radius: 10px;
+        max-height: 80vh;
+        overflow-y: auto;
     }
+
     h2 {
-        font-family: 'Lato', sans-serif; /* Custom font for headings */
+        font-family: 'Lato', sans-serif;
         font-weight: 700;
     }
+
     h3 {
-        font-family: 'Roboto', sans-serif; /* Custom font for subheadings */
+        font-family: 'Roboto', sans-serif;
         font-weight: 500;
     }
+
     .alert-primary {
-        background-color: #d1e7dd; /* User message background color */
-        color: #0f5132; /* User message text color */
+        background-color: #d1e7dd;
+        color: #0f5132;
     }
+
     .alert-light {
-        background-color: #e2e3e5; /* AI message background color */
-        color: #383d41; /* AI message text color */
+        background-color: #e2e3e5;
+        color: #383d41;
     }
 </style>
 {% endblock %}
