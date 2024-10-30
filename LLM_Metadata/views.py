@@ -2,16 +2,16 @@ from django.shortcuts import render, redirect
 from django.views.generic import TemplateView
 from .models import Conversation
 from .forms import ConversationForm, QuestionForm
+from django.utils.safestring import mark_safe
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from .models import Conversation
 from django.utils import timezone
-from .utils import query_api  # Assuming query_api is refactored to a helper function
+from .utils import query_api 
 import uuid
 
 
 def home(request):
-    
     return render(request, 'home.html')
 
 
@@ -45,6 +45,15 @@ def conversation_view(request):
     conversations = Conversation.objects.filter(username=request.user).order_by('-timestamp')
     return render(request, 'LLM_Metadata/conversation.html', {'form': form, 'conversations': conversations})
 
+
+import uuid
+from django.contrib import messages as django_messages  # Rename messages import
+from django.contrib.auth.decorators import login_required
+from django.utils import timezone
+from django.shortcuts import render, redirect
+from .forms import QuestionForm
+from .models import Conversation
+
 @login_required
 def ask_question_view(request):
     if request.method == 'POST':
@@ -58,43 +67,53 @@ def ask_question_view(request):
             top_p = form.cleaned_data['top_p']
 
             # Prepare messages for the API call
-            messages = [{"role": "user", "content": question}]
+            api_messages = [{"role": "user", "content": question}]  # Rename messages to api_messages
 
-            # Query the API
-            response = query_api(messages, model, temperature, max_tokens, top_k, top_p)
+            try:
+                # Query the API
+                response = query_api(api_messages, model, temperature, max_tokens, top_k, top_p)
 
-            if 'error' not in response:
-                # Save user question with additional parameters
-                conversation = Conversation.objects.create(
-                    role='user',
-                    content=question,
-                    username=request.user.username,
-                    conversation_id=uuid.uuid4(),
-                    timestamp=timezone.now(),
-                    model_name=model,
-                    token_usage=response['response_tokens'],
-                    elapsed_time=response['elapsed_time'],
-                    temperature=temperature,
-                    top_k=top_k,
-                    top_p=top_p,
-                )
+                if 'error' not in response:
+                    # Save user question with additional parameters
+                    conversation = Conversation.objects.create(
+                        role='user',
+                        content=question,
+                        username=request.user.username,
+                        conversation_id=uuid.uuid4(),
+                        timestamp=timezone.now(),
+                        model_name=model,
+                        token_usage=response['response_tokens'],
+                        elapsed_time=round(response['elapsed_time'], 2),
+                        temperature=temperature,
+                        top_k=top_k,
+                        top_p=top_p,
+                    )
+                    
+                    # Save AI response with the same conversation ID
+                    Conversation.objects.create(
+                        role='assistant',
+                        content=response['content'],
+                        username=request.user.username,
+                        conversation_id=conversation.conversation_id,
+                        timestamp=timezone.now(),
+                        model_name=model,
+                        token_usage=response['response_tokens'],
+                        elapsed_time=round(response['elapsed_time'], 2),
+                        temperature=temperature,
+                        top_k=top_k,
+                        top_p=top_p,
+                    )
+
+                    return redirect('conversation')  # Redirect to the conversation history page
                 
-                # Save AI response with the same conversation ID
-                Conversation.objects.create(
-                    role='assistant',
-                    content=response['content'],
-                    username=request.user.username,
-                    conversation_id=conversation.conversation_id,
-                    timestamp=timezone.now(),
-                    model_name=model,
-                    token_usage=response['response_tokens'],
-                    elapsed_time=response['elapsed_time'],
-                    temperature=temperature,
-                    top_k=top_k,
-                    top_p=top_p,
-                )
-
-                return redirect('conversation')  # Redirect to the conversation history page
+                else:
+                    # If the response contains an error
+                    django_messages.error(request, f"API error: {response['error']}")  # Use renamed import
+                    
+            except Exception as e:
+                # Handle exceptions raised during the API call
+                error_message = mark_safe(f"An error occurred while contacting the model: Please contact <a href='mailto:amirhossein.bayani@gmail.com'>admin</a>")  # Use mark_safe
+                django_messages.error(request, error_message)
 
     else:
         form = QuestionForm()
