@@ -1,12 +1,63 @@
 {% extends 'base.html' %}
+{% load custom_filters %}
 
 {% block content %}
-<div class="container mt-4">
+<div class="container mt-3">
     <h2 class="text-center text-primary">Ask a Question</h2>
-    <form method="POST" class="mb-4 border p-4 rounded shadow">
+    <form method="POST" class="mb-4 border p-4 rounded shadow-sm bg-light">
         {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="btn btn-success">Submit Question</button>
+        
+        <!-- Question Input -->
+        <div class="form-group">
+            {{ form.question.label_tag }}
+            {{ form.question|add_class:"form-control" }}
+            <small class="form-text text-muted">Type your question here.</small>
+        </div>
+        
+        <!-- Model Selection -->
+        <div class="form-group mt-2">
+            {{ form.model.label_tag }}
+            {{ form.model|add_class:"form-select" }}
+            <small class="form-text text-muted">Choose the LLM model for your query.</small>
+        </div>
+
+        <!-- Max Tokens Input -->
+        <div class="form-group mt-2">
+            {{ form.max_tokens.label_tag }}
+            {{ form.max_tokens|add_class:"form-control" }}
+            <small class="form-text text-muted">Limit the number of tokens in the response (e.g., 600).</small>
+        </div>
+
+        <!-- Temperature Input -->
+        <div class="form-group mt-2">
+            {{ form.temperature.label_tag }}
+            {{ form.temperature|add_class:"form-control" }}
+            <small class="form-text text-muted">Adjusts the randomness of the response. Higher values make outputs more diverse.</small>
+        </div>
+
+        <!-- Top K Input -->
+        <div class="form-group mt-2">
+            {{ form.top_k.label_tag }}
+            {{ form.top_k|add_class:"form-control" }}
+            <small class="form-text text-muted">Limit the number of top words for each predicted token (e.g., 40).</small>
+        </div>
+
+        <!-- Top P Input -->
+        <div class="form-group mt-2">
+            {{ form.top_p.label_tag }}
+            {{ form.top_p|add_class:"form-control" }}
+            <small class="form-text text-muted">Controls cumulative probability distribution for sampling. A value of 0.9 means only tokens within 90% of the probability mass are considered.</small>
+        </div>
+        <!-- Link for More Details -->
+        <div class="mt-2 text-center">
+            <p class="text-muted">For more details about the parameters, visit <a href="https://pypi.org/project/ollama-python/" target="_blank">Ollama Python</a>.</p>
+        </div>
+        <!-- Submit Button -->
+        <div class="text-center mt-2">
+            <button type="submit" class="btn btn-success btn-lg">Submit Question</button>
+        </div>
     </form>
+
+    
 </div>
 {% endblock %}
