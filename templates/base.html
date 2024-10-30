@@ -32,10 +32,14 @@
         /* Ensure full-height layout */
         .main-bg {
             background-color: #f8f9fa; /* Light background for body */
-            height: 100vh; /* Ensure full height of the viewport */
+            /*height: 100vh; /* Ensure full height of the viewport */
         }
         .dark-bg {
             background-color: #343a40;
+        }
+
+        .alert {
+            margin-bottom: 20px; /* Ensure there is space below the alert */
         }
     </style>
 </head>
@@ -81,18 +85,7 @@
         </div>
     </nav>
 
-    <div class="container">
-        <div class="row">
-            <div class="col-md-8 offset-md-2">
-                {% for message in messages %}
-                <div class="alert {{ message.tags }} alert-dismissible fade show" id="msg" role="alert">
-                    {{ message | safe }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-    </div>
+    
 
     <main class="flex-shrink-0 main-bg">
         {% block content %}
