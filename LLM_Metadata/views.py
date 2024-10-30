@@ -50,8 +50,6 @@ def conversation_view(request):
 
 @login_required
 def ask_question_view(request):
-    latest_conversation = None  # Initialize the variable to store the latest conversation
-    
     if request.method == 'POST':
         form = QuestionForm(request.POST)
         if form.is_valid():
@@ -62,8 +60,11 @@ def ask_question_view(request):
             top_k = form.cleaned_data['top_k']
             top_p = form.cleaned_data['top_p']
 
-            # Generate a unique conversation ID for this question-response pair
-            conversation_id = uuid.uuid4()
+            # Retrieve or generate a conversation ID
+            conversation_id = request.session.get('current_conversation_id', None)
+            if not conversation_id:
+                conversation_id = uuid.uuid4()
+                request.session['current_conversation_id'] = str(conversation_id)  # Store in session
 
             # Prepare messages for the API call
             api_messages = [{"role": "user", "content": question}]
@@ -89,7 +90,7 @@ def ask_question_view(request):
                     )
                     
                     # Save AI response with the same conversation ID
-                    assistant_conversation = Conversation.objects.create(
+                    Conversation.objects.create(
                         role='assistant',
                         content=response['content'],
                         username=request.user.username,
@@ -103,15 +104,10 @@ def ask_question_view(request):
                         top_p=top_p,
                     )
                     
-                    # Retrieve the latest question-response pair
-                    latest_conversation = Conversation.objects.filter(
-                        conversation_id=conversation_id
-                    ).order_by('timestamp')
-                
                 else:
                     # If the response contains an error
                     error_message = mark_safe(
-                        f"An error occurred while contacting the model: Please contact <a href='mailto:amirhossein.bayani@gmail.com'>admin</a>"
+                        f"An error occurred while contacting the model (API connection issue): Please contact <a href='mailto:amirhossein.bayani@gmail.com'>admin</a>"
                     )
                     django_messages.error(request, error_message)
 
@@ -125,6 +121,15 @@ def ask_question_view(request):
     else:
         form = QuestionForm()
 
-    # Pass the latest conversation (question and response) to the template
-    return render(request, 'LLM_Metadata/ask_question.html', {'form': form, 'conversations': latest_conversation})
+    # Retrieve all messages in the current conversation
+    conversation_id = request.session.get('current_conversation_id')
+    if conversation_id:
+        conversations = Conversation.objects.filter(conversation_id=conversation_id).order_by('timestamp')
+    else:
+        conversations = []
 
+    return render(request, 'LLM_Metadata/ask_question.html', {'form': form, 'conversations': conversations})
+
+def start_new_conversation(request):
+    request.session.pop('current_conversation_id', None)  # Remove the conversation ID from session
+    return redirect('ask_question')
