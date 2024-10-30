@@ -64,17 +64,27 @@ def ask_question_view(request):
             conversation_id = request.session.get('current_conversation_id', None)
             if not conversation_id:
                 conversation_id = uuid.uuid4()
-                request.session['current_conversation_id'] = str(conversation_id)  # Store in session
+                request.session['current_conversation_id'] = str(conversation_id)
 
-            # Prepare messages for the API call
-            api_messages = [{"role": "user", "content": question}]
+            # Fetch previous conversation history
+            previous_conversations = Conversation.objects.filter(
+                conversation_id=conversation_id
+            ).order_by('timestamp')
+
+            # Format history for the API
+            api_messages = [
+                {"role": conv.role, "content": conv.content}
+                for conv in previous_conversations
+            ]
+            # Add the new user question to the messages list
+            api_messages.append({"role": "user", "content": question})
 
             try:
-                # Query the API
+                # Query the API with the conversation history
                 response = query_api(api_messages, model, temperature, max_tokens, top_k, top_p)
 
                 if 'error' not in response:
-                    # Save user question with additional parameters
+                    # Save the user question
                     user_conversation = Conversation.objects.create(
                         role='user',
                         content=question,
@@ -89,7 +99,7 @@ def ask_question_view(request):
                         top_p=top_p,
                     )
                     
-                    # Save AI response with the same conversation ID
+                    # Save the AI response
                     Conversation.objects.create(
                         role='assistant',
                         content=response['content'],
@@ -105,14 +115,12 @@ def ask_question_view(request):
                     )
                     
                 else:
-                    # If the response contains an error
                     error_message = mark_safe(
-                        f"An error occurred while contacting the model (API connection issue): Please contact <a href='mailto:amirhossein.bayani@gmail.com'>admin</a>"
+                        f"An error occurred while contacting the model: Please contact <a href='mailto:amirhossein.bayani@gmail.com'>admin</a>"
                     )
                     django_messages.error(request, error_message)
 
             except Exception as e:
-                # Handle exceptions raised during the API call
                 error_message = mark_safe(
                     f"An error occurred while contacting the model: Please contact <a href='mailto:amirhossein.bayani@gmail.com'>admin</a>"
                 )
@@ -130,6 +138,3 @@ def ask_question_view(request):
 
     return render(request, 'LLM_Metadata/ask_question.html', {'form': form, 'conversations': conversations})
 
-def start_new_conversation(request):
-    request.session.pop('current_conversation_id', None)  # Remove the conversation ID from session
-    return redirect('ask_question')
