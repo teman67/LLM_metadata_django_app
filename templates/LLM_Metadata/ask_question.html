@@ -4,6 +4,17 @@
 {% block content %}
 <div class="container mt-3">
     <h2 class="text-center text-primary">Ask a Question</h2>
+    
+    <!-- Display error messages -->
+    {% if messages %}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            {% for message in messages %}
+                <p>{{ message }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+
     <form method="POST" class="mb-4 border p-4 rounded shadow-sm bg-light">
         {% csrf_token %}
         
@@ -48,16 +59,16 @@
             {{ form.top_p|add_class:"form-control" }}
             <small class="form-text text-muted">Controls cumulative probability distribution for sampling. A value of 0.9 means only tokens within 90% of the probability mass are considered.</small>
         </div>
+
         <!-- Link for More Details -->
         <div class="mt-2 text-center">
             <p class="text-muted">For more details about the parameters, visit <a href="https://pypi.org/project/ollama-python/" target="_blank">Ollama Python</a>.</p>
         </div>
+        
         <!-- Submit Button -->
-        <div class="text-center mt-2">
-            <button type="submit" class="btn btn-success btn-lg">Submit Question</button>
+        <div class="text-center">
+            <button type="submit" class="btn btn-primary">Submit Question</button>
         </div>
     </form>
-
-    
 </div>
 {% endblock %}
