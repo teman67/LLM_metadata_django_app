@@ -108,7 +108,8 @@ def ask_question_view(request):
                 
                 else:
                     # If the response contains an error
-                    django_messages.error(request, f"API error: {response['error']}")  # Use renamed import
+                    error_message = mark_safe(f"An error occurred while contacting the model: Please contact <a href='mailto:amirhossein.bayani@gmail.com'>admin</a>")  # Use mark_safe
+                    django_messages.error(request, error_message)
                     
             except Exception as e:
                 # Handle exceptions raised during the API call
