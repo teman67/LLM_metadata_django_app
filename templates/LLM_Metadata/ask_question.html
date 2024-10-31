@@ -5,32 +5,32 @@
 <div class="container mt-3">
     <h2 class="text-center text-primary">Ask a Question</h2>
 
-    <!-- Display error messages -->
-    {% if messages %}
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        {% for message in messages %}
-        {% if message.tags == "error" %}
-        <p>{{ message }}</p>
-        {% endif %}
-        {% endfor %}
+    <!-- Inline Error Messages (hidden by default) -->
+    <div id="errorMessages" class="alert alert-danger alert-dismissible fade show" style="display: none;" role="alert">
+        <button type="button" class="btn-close" onclick="hideErrorMessages()" aria-label="Close"></button>
+        <span id="errorText"></span>
     </div>
-    {% endif %}
+
+    <!-- Loading Spinner -->
+    <div id="loadingSpinner" class="text-center" style="display: none;">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <p>Waiting for response...</p>
+    </div>
 
     <!-- Toggle Button for Question Form -->
     <div class="text-center mb-3">
-        <button class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#questionForm"
-            aria-expanded="true" aria-controls="questionForm">
+        <button class="btn btn-secondary" type="button" id="toggleQuestionForm">
             Hide Question Form
         </button>
     </div>
 
     <!-- Question Form Section -->
-    <!-- Question Form Section -->
-    <div class="collapse show" id="questionForm">
+    <div id="questionForm" class="collapse show">
         <div class="row justify-content-center">
             <div class="col-md-8">
-                <form method="POST" class="mb-4 border p-4 rounded shadow-sm bg-light">
+                <form method="POST" class="mb-4 border p-4 rounded shadow-sm bg-light" id="questionFormElement">
                     {% csrf_token %}
 
                     <!-- Question Input in its own row -->
@@ -38,7 +38,6 @@
                         <div class="col-md-12">
                             {{ form.question.label_tag }}
                             {{ form.question|add_class:"form-control" }}
-                            <!-- <small class="form-text text-muted">Type your question here.</small> -->
                         </div>
                     </div>
 
@@ -47,29 +46,28 @@
                         <div class="col-md-2">
                             {{ form.model.label_tag }}
                             {{ form.model|add_class:"form-select" }}
-                            <!-- <small class="form-text text-muted">Choose the LLM model.</small> -->
                         </div>
                         <div class="col-md-2">
                             {{ form.max_tokens.label_tag }}
                             {{ form.max_tokens|add_class:"form-control" }}
-                            <!-- <small class="form-text text-muted">Max Tokens</small> -->
                         </div>
                         <div class="col-md-2">
                             {{ form.temperature.label_tag }}
                             {{ form.temperature|add_class:"form-control" }}
-                            <!-- <small class="form-text text-muted">Temperature</small> -->
                         </div>
                         <div class="col-md-2">
                             {{ form.top_k.label_tag }}
                             {{ form.top_k|add_class:"form-control" }}
-                            <!-- <small class="form-text text-muted">Top K</small> -->
                         </div>
                         <div class="col-md-2">
                             {{ form.top_p.label_tag }}
                             {{ form.top_p|add_class:"form-control" }}
-                            <!-- <small class="form-text text-muted">Top P</small> -->
                         </div>
                     </div>
+                    <div class="mt-2 text-center">
+                        <p class="text-muted">For more details about the parameters, visit <a href="https://pypi.org/project/ollama-python/" target="_blank">Ollama Python</a>.</p>
+                    </div>
+                    
 
                     <!-- Submit Button -->
                     <div class="text-center mt-3">
@@ -79,8 +77,6 @@
             </div>
         </div>
     </div>
-
-
 
     <!-- Toggle Button for Conversation History -->
     <div class="text-center mb-3">
@@ -114,9 +110,41 @@
 </div>
 
 <script>
+    // Function to show error messages
+    function showErrorMessages(messages) {
+        const errorText = document.getElementById('errorText');
+        errorText.innerHTML = messages.join('<br>'); // Join messages for display
+        const errorMessages = document.getElementById('errorMessages');
+        errorMessages.style.display = 'block'; // Show error messages
+    }
+
+    // Function to hide error messages
+    function hideErrorMessages() {
+        document.getElementById('errorMessages').style.display = 'none';
+    }
+
+    // Display error messages from Django
+    const djangoMessages = {% if messages %}[{% for message in messages %}{% if message.tags == "error" %}"{{ message }}"{% if not forloop.last %}, {% endif %}{% endif %}{% endfor %}]{% else %}[]{% endif %};
+    if (djangoMessages.length > 0) {
+        showErrorMessages(djangoMessages);
+    }
+
+    // Loading Spinner Handling
+    const loadingSpinner = document.getElementById('loadingSpinner');
+    const questionFormElement = document.getElementById('questionFormElement');
+
+    questionFormElement.addEventListener('submit', function () {
+        loadingSpinner.style.display = 'block'; // Show spinner
+    });
+
     // Toggle button for question form
-    document.querySelector('[data-bs-toggle="collapse"][data-bs-target="#questionForm"]').addEventListener('click', function () {
-        this.textContent = this.getAttribute('aria-expanded') === 'true' ? 'Hide Question Form' : 'Show Question Form';
+    const questionForm = document.getElementById('questionForm');
+    const toggleQuestionFormBtn = document.getElementById('toggleQuestionForm');
+
+    toggleQuestionFormBtn.addEventListener('click', function () {
+        const isExpanded = questionForm.classList.contains('show');
+        questionForm.classList.toggle('show');
+        this.textContent = isExpanded ? 'Show Question Form' : 'Hide Question Form';
     });
 
     // Toggle button for conversation history
