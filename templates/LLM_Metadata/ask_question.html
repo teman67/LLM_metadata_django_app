@@ -4,86 +4,88 @@
 {% block content %}
 <div class="container mt-3">
     <h2 class="text-center text-primary">Ask a Question</h2>
-    
+
     <!-- Display error messages -->
     {% if messages %}
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            {% for message in messages %}
-                <p>{{ message }}</p>
-            {% endfor %}
-        </div>
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        {% for message in messages %}
+        {% if message.tags == "error" %}
+        <p>{{ message }}</p>
+        {% endif %}
+        {% endfor %}
+    </div>
     {% endif %}
 
     <!-- Toggle Button for Question Form -->
     <div class="text-center mb-3">
-        <button class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#questionForm" aria-expanded="true" aria-controls="questionForm">
+        <button class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#questionForm"
+            aria-expanded="true" aria-controls="questionForm">
             Hide Question Form
         </button>
     </div>
 
     <!-- Question Form Section -->
+    <!-- Question Form Section -->
     <div class="collapse show" id="questionForm">
-        <form method="POST" class="mb-4 border p-4 rounded shadow-sm bg-light">
-            {% csrf_token %}
-            
-            <!-- Question Input -->
-            <div class="form-group">
-                {{ form.question.label_tag }}
-                {{ form.question|add_class:"form-control" }}
-                <small class="form-text text-muted">Type your question here.</small>
-            </div>
-            
-            <!-- Model Selection -->
-            <div class="form-group mt-2">
-                {{ form.model.label_tag }}
-                {{ form.model|add_class:"form-select" }}
-                <small class="form-text text-muted">Choose the LLM model for your query.</small>
-            </div>
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <form method="POST" class="mb-4 border p-4 rounded shadow-sm bg-light">
+                    {% csrf_token %}
 
-            <!-- Max Tokens Input -->
-            <div class="form-group mt-2">
-                {{ form.max_tokens.label_tag }}
-                {{ form.max_tokens|add_class:"form-control" }}
-                <small class="form-text text-muted">Limit the number of tokens in the response (e.g., 600).</small>
-            </div>
+                    <!-- Question Input in its own row -->
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            {{ form.question.label_tag }}
+                            {{ form.question|add_class:"form-control" }}
+                            <small class="form-text text-muted">Type your question here.</small>
+                        </div>
+                    </div>
 
-            <!-- Temperature Input -->
-            <div class="form-group mt-2">
-                {{ form.temperature.label_tag }}
-                {{ form.temperature|add_class:"form-control" }}
-                <small class="form-text text-muted">Adjusts the randomness of the response. Higher values make outputs more diverse.</small>
-            </div>
+                    <!-- Other inputs in a single row -->
+                    <div class="row">
+                        <div class="col-md-2">
+                            {{ form.model.label_tag }}
+                            {{ form.model|add_class:"form-select" }}
+                            <small class="form-text text-muted">Choose the LLM model.</small>
+                        </div>
+                        <div class="col-md-2">
+                            {{ form.max_tokens.label_tag }}
+                            {{ form.max_tokens|add_class:"form-control" }}
+                            <small class="form-text text-muted">Max Tokens</small>
+                        </div>
+                        <div class="col-md-2">
+                            {{ form.temperature.label_tag }}
+                            {{ form.temperature|add_class:"form-control" }}
+                            <small class="form-text text-muted">Temperature</small>
+                        </div>
+                        <div class="col-md-2">
+                            {{ form.top_k.label_tag }}
+                            {{ form.top_k|add_class:"form-control" }}
+                            <small class="form-text text-muted">Top K</small>
+                        </div>
+                        <div class="col-md-2">
+                            {{ form.top_p.label_tag }}
+                            {{ form.top_p|add_class:"form-control" }}
+                            <small class="form-text text-muted">Top P</small>
+                        </div>
+                    </div>
 
-            <!-- Top K Input -->
-            <div class="form-group mt-2">
-                {{ form.top_k.label_tag }}
-                {{ form.top_k|add_class:"form-control" }}
-                <small class="form-text text-muted">Limit the number of top words for each predicted token (e.g., 40).</small>
+                    <!-- Submit Button -->
+                    <div class="text-center mt-3">
+                        <button type="submit" class="btn btn-primary">Submit Question</button>
+                    </div>
+                </form>
             </div>
-
-            <!-- Top P Input -->
-            <div class="form-group mt-2">
-                {{ form.top_p.label_tag }}
-                {{ form.top_p|add_class:"form-control" }}
-                <small class="form-text text-muted">Controls cumulative probability distribution for sampling. A value of 0.9 means only tokens within 90% of the probability mass are considered.</small>
-            </div>
-
-            <!-- Link for More Details -->
-            <div class="mt-2 text-center">
-                <p class="text-muted">For more details about the parameters, visit <a href="https://pypi.org/project/ollama-python/" target="_blank">Ollama Python</a>.</p>
-            </div>
-            
-            <!-- Submit Button -->
-            <div class="text-center">
-                <button type="submit" class="btn btn-primary">Submit Question</button>
-            </div>
-        </form>
+        </div>
     </div>
+
+
 
     <!-- Toggle Button for Conversation History -->
     <div class="text-center mb-3">
-        <button class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#conversationHistory" aria-expanded="true" aria-controls="conversationHistory">
+        <button class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#conversationHistory"
+            aria-expanded="true" aria-controls="conversationHistory">
             Hide Conversation History
         </button>
     </div>
@@ -96,7 +98,11 @@
                 {% for conversation in conversations %}
                     <div class="conversation-item mb-2">
                         <p><strong>{{ conversation.role|capfirst }}:</strong> {{ conversation.content }}</p>
-                        <p class="text-muted small">Model: {{ conversation.model_name }} | Tokens: {{ conversation.token_usage }} | Time: {{ conversation.elapsed_time }}s</p>
+                        <p class="text-muted small">
+                            Model: {{ conversation.model_name }} | 
+                            Tokens: {{ conversation.token_usage }} | 
+                            Time: {{ conversation.elapsed_time }}s
+                        </p>
                     </div>
                     <hr>
                 {% endfor %}
@@ -109,12 +115,12 @@
 
 <script>
     // Toggle button for question form
-    document.querySelector('[data-bs-toggle="collapse"][data-bs-target="#questionForm"]').addEventListener('click', function() {
+    document.querySelector('[data-bs-toggle="collapse"][data-bs-target="#questionForm"]').addEventListener('click', function () {
         this.textContent = this.getAttribute('aria-expanded') === 'true' ? 'Hide Question Form' : 'Show Question Form';
     });
 
     // Toggle button for conversation history
-    document.querySelector('[data-bs-toggle="collapse"][data-bs-target="#conversationHistory"]').addEventListener('click', function() {
+    document.querySelector('[data-bs-toggle="collapse"][data-bs-target="#conversationHistory"]').addEventListener('click', function () {
         this.textContent = this.getAttribute('aria-expanded') === 'true' ? 'Hide Conversation History' : 'Show Conversation History';
     });
 </script>
