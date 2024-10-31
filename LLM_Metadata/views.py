@@ -139,4 +139,3 @@ def ask_question_view(request):
     return render(request, 'LLM_Metadata/ask_question.html', {'form': form, 'conversations': conversations})
 
 
-
