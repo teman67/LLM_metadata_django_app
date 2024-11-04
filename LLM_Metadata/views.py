@@ -2,18 +2,18 @@ from django.shortcuts import render, redirect
 from django.views.generic import TemplateView
 from .models import Conversation
 from .forms import ConversationForm, QuestionForm
-from django.utils.safestring import mark_safe
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from .models import Conversation
 from django.utils import timezone
-from .utils import query_api 
+from django.contrib import messages as django_messages
+from django.utils.safestring import mark_safe
+from .utils import query_api  # Assuming query_api is refactored to a helper function
 import uuid
-from django.contrib import messages as django_messages 
-
 
 
 def home(request):
+    
     return render(request, 'home.html')
 
 
@@ -24,18 +24,18 @@ def conversation_view(request):
         if form.is_valid():
             conversation = form.save(commit=False)
             conversation.role = 'user'
-            conversation.username = request.user
-            conversation.conversation_id = uuid.uuid4()
+            conversation.username = request.user  # Use User instance
+            conversation.conversation_id = uuid.uuid4()  # Unique per conversation
             conversation.timestamp = timezone.now()
             conversation.save()
 
-            # Add AI response
-            response_content = "Simulated AI response to: " + conversation.content  # Replace with actual API call
+            # Simulated AI response (Replace with actual API call)
+            response_content = "Simulated AI response to: " + conversation.content
             Conversation.objects.create(
                 role='assistant',
                 content=response_content,
                 model_name='Selected Model',
-                username=request.user,
+                username=request.user,  # Use User instance
                 conversation_id=conversation.conversation_id,
                 timestamp=timezone.now()
             )
@@ -43,9 +43,18 @@ def conversation_view(request):
 
     else:
         form = ConversationForm()
-    
+
+    # Fetch conversations for the logged-in user, newest first
     conversations = Conversation.objects.filter(username=request.user).order_by('-timestamp')
-    return render(request, 'LLM_Metadata/conversation.html', {'form': form, 'conversations': conversations})
+
+    # Pair user and assistant messages
+    paired_conversations = []
+    for i in range(0, len(conversations) - 1, 2):
+        user_convo = conversations[i + 1] if (i + 1) < len(conversations) else None
+        ai_convo = conversations[i]
+        paired_conversations.append((user_convo, ai_convo))
+
+    return render(request, 'LLM_Metadata/conversation.html', {'form': form, 'paired_conversations': paired_conversations})
 
 
 @login_required
@@ -116,7 +125,7 @@ def ask_question_view(request):
                     
                 else:
                     error_message = mark_safe(
-                        f"An error occurred while contacting the model (API connection issue): Please contact <a href='mailto:amirhossein.bayani@gmail.com'>admin</a>"
+                        f"An error occurred while contacting the model: Please contact <a href='mailto:amirhossein.bayani@gmail.com'>admin</a>"
                     )
                     django_messages.error(request, error_message)
 
@@ -132,10 +141,9 @@ def ask_question_view(request):
     # Retrieve all messages in the current conversation
     conversation_id = request.session.get('current_conversation_id')
     if conversation_id:
-        conversations = Conversation.objects.filter(conversation_id=conversation_id).order_by('timestamp')
+        conversations = Conversation.objects.filter(conversation_id=conversation_id)
     else:
         conversations = []
 
     return render(request, 'LLM_Metadata/ask_question.html', {'form': form, 'conversations': conversations})
-
 
