@@ -145,5 +145,16 @@ def ask_question_view(request):
     else:
         conversations = []
 
-    return render(request, 'LLM_Metadata/ask_question.html', {'form': form, 'conversations': conversations})
+    # Pair user and assistant messages
+    paired_conversations = []
+    for i in range(0, len(conversations) - 1, 2):
+        user_convo = conversations[i + 1] if (i + 1) < len(conversations) else None
+        ai_convo = conversations[i]
+        paired_conversations.append((user_convo, ai_convo))
+
+    return render(request, 'LLM_Metadata/ask_question.html', {
+        'form': form,
+        'conversations': conversations,
+        'paired_conversations': paired_conversations  # Pass the paired conversations to the template
+    })
 
