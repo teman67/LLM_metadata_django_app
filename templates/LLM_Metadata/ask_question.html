@@ -88,20 +88,38 @@
 
     <!-- Conversation History Section -->
     <div class="collapse show" id="conversationHistory">
-        <h3 class="text-center text-secondary mt-4">Current Conversation</h3>
+        <h3 class="text-center text-secondary mt-8">Current Conversation</h3>
         <div class="conversation-history border p-3 rounded bg-light">
             {% if conversations %}
-                {% for conversation in conversations %}
-                    <div class="conversation-item mb-2">
-                        <p><strong>{{ conversation.role|capfirst }}:</strong> {{ conversation.content }}</p>
-                        <p class="text-muted small">
-                            Model: {{ conversation.model_name }} | 
-                            Tokens: {{ conversation.token_usage }} | 
-                            Time: {{ conversation.elapsed_time }}s
-                        </p>
+            {% for user_convo, ai_convo in paired_conversations %}
+            <div class="row ">
+                <div class="col-md-4">
+                    <div class="alert alert-primary">
+                        <strong>{{ user_convo.role|capfirst }}:</strong> {{ user_convo.content }}
                     </div>
-                    <hr>
-                {% endfor %}
+                </div>
+                <div class="col-md-8">
+                    {% if ai_convo %}
+                        <div class="alert alert-light">
+                            <strong>{{ ai_convo.role|capfirst }}:</strong> {{ ai_convo.content }}
+                            <br>
+                            <small>
+                                <strong>Model:</strong> {{ ai_convo.model_name }} |
+                                <strong>Tokens:</strong> {{ ai_convo.token_usage }} |
+                                <strong>Time:</strong> {{ ai_convo.elapsed_time }} seconds |
+                                <strong>Temperature:</strong> {{ ai_convo.temperature }} |
+                                <strong>Top K:</strong> {{ ai_convo.top_k }} |
+                                <strong>Top P:</strong> {{ ai_convo.top_p }}
+                            </small>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-light">
+                            <strong>No response available.</strong>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
             {% else %}
                 <p class="text-muted">No conversation started yet.</p>
             {% endif %}
