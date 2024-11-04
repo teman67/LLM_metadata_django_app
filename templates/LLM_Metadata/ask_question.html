@@ -30,9 +30,9 @@
     <div id="questionForm" class="collapse show">
         <div class="row justify-content-center">
             <div class="col-md-8">
-                <form method="POST" class="mb-4 border p-4 rounded shadow-sm bg-light" id="questionFormElement">
+                <form method="POST" class="mb-4 border p-4 rounded shadow-sm bg-light" id="questionFormElement" enctype="multipart/form-data">
                     {% csrf_token %}
-
+                
                     <!-- Question Input in its own row -->
                     <div class="row mb-3">
                         <div class="col-md-12">
@@ -40,7 +40,23 @@
                             {{ form.question|add_class:"form-control" }}
                         </div>
                     </div>
+                
+                    <!-- File Upload Section -->
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label for="fileUpload" class="form-label">Upload File (optional)</label>
+                            <input type="file" class="form-control" id="fileUpload" name="file_upload">
+                            <small class="text-muted">You can upload a file to provide more context for your question. Allowed types: .txt, .doc, .json, .csv.</small>
+                            {% if form.file_upload.errors %}
+                                <div class="alert alert-danger mt-2">
+                                    {{ form.file_upload.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
 
+
+                
                     <!-- Other inputs in a single row -->
                     <div class="row">
                         <div class="col-md-2">
@@ -64,16 +80,16 @@
                             {{ form.top_p|add_class:"form-control" }}
                         </div>
                     </div>
+                
                     <div class="mt-2 text-center">
                         <p class="text-muted">For more details about the parameters, visit <a href="https://pypi.org/project/ollama-python/" target="_blank">Ollama Python</a>.</p>
                     </div>
-                    
-
+                
                     <!-- Submit Button -->
                     <div class="text-center mt-3">
                         <button type="submit" class="btn btn-primary">Submit Question</button>
                     </div>
-                </form>
+                </form>                
             </div>
         </div>
     </div>
@@ -128,6 +144,27 @@
 </div>
 
 <script>
+    document.getElementById('fileUpload').addEventListener('change', function(event) {
+        const fileInput = event.target;
+        const file = fileInput.files[0];
+        
+        // Allowed file types
+        const validExtensions = ['.txt', '.doc', '.json', '.csv'];
+        const fileExtension = file ? file.name.split('.').pop().toLowerCase() : '';
+
+        // Check if the file type is valid
+        if (file && !validExtensions.includes('.' + fileExtension)) {
+            alert('Unsupported file type. Allowed types are: .txt, .doc, .json, .csv.');
+            fileInput.value = ''; // Clear the input
+        }
+
+        // Check file size (optional)
+        if (file && file.size > 30 * 1024 * 1024) {
+            alert('File size must not exceed 30 MB.');
+            fileInput.value = ''; // Clear the input
+        }
+    });
+    
     // Function to show error messages
     function showErrorMessages(messages) {
         const errorText = document.getElementById('errorText');

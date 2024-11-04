@@ -60,7 +60,7 @@ def conversation_view(request):
 @login_required
 def ask_question_view(request):
     if request.method == 'POST':
-        form = QuestionForm(request.POST)
+        form = QuestionForm(request.POST, request.FILES)  # Include request.FILES to handle file uploads
         if form.is_valid():
             question = form.cleaned_data['question']
             model = form.cleaned_data['model']
@@ -68,6 +68,7 @@ def ask_question_view(request):
             temperature = form.cleaned_data['temperature']
             top_k = form.cleaned_data['top_k']
             top_p = form.cleaned_data['top_p']
+            file_upload = form.cleaned_data.get('file_upload')  # Get the uploaded file if available
 
             # Retrieve or generate a conversation ID
             conversation_id = request.session.get('current_conversation_id', None)
@@ -87,6 +88,16 @@ def ask_question_view(request):
             ]
             # Add the new user question to the messages list
             api_messages.append({"role": "user", "content": question})
+
+            # Handle file upload (if necessary)
+            file_content = ''
+            if file_upload:
+                file_content = file_upload.read().decode('utf-8')  # Decode the byte content to a string
+                # Optionally, add additional formatting/cleaning here
+
+            # Include the uploaded file content in the messages
+            if file_content:
+                api_messages.append({"role": "user", "content": f"Here is some additional context from the uploaded file: {file_content}"})
 
             try:
                 # Query the API with the conversation history
@@ -157,4 +168,5 @@ def ask_question_view(request):
         'conversations': conversations,
         'paired_conversations': paired_conversations  # Pass the paired conversations to the template
     })
+
 

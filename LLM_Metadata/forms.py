@@ -1,5 +1,6 @@
 from django import forms
 from .models import Conversation
+from django.core.exceptions import ValidationError
 
 class ConversationForm(forms.ModelForm):
     content = forms.CharField(widget=forms.Textarea(attrs={'placeholder': 'Type your question here...'}))
@@ -50,3 +51,19 @@ class QuestionForm(forms.Form):
         label="Top P",
         widget=forms.NumberInput(attrs={'class': 'form-control'})
     )
+    file_upload = forms.FileField(required=False, label='Upload File')
+
+    def clean_file_upload(self):
+        file = self.cleaned_data.get('file_upload')
+        if file:
+            # Check the file size (limit to 30 MB)
+            if file.size > 30 * 1024 * 1024:  # 30 MB
+                raise ValidationError("File size must not exceed 30 MB.")
+
+            # Check the file type (only allow .txt, .doc, .json, .csv)
+            valid_extensions = ['.txt', '.doc', '.json', '.csv']
+            ext = file.name.split('.')[-1].lower()
+            if f'.{ext}' not in valid_extensions:
+                raise ValidationError(f"Unsupported file type: {ext}. Allowed types are: {', '.join(valid_extensions)}.")
+
+        return file
