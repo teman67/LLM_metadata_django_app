@@ -1,78 +1,66 @@
 {% extends 'base.html' %}
-{% load conversation_filters %}
+
 {% block content %}
 <div class="container mt-4">
     <h2 class="text-center text-primary">AI Conversations</h2>
 
     <h3 class="text-secondary">Conversation History</h3>
     <div class="conversation-history border p-3 rounded shadow">
-        {% for conversation in conversations %}
-        {% if conversation.role == 'user' %}
-        <div class="row mb-3">
-            <div class="col-md-6">
-                <div class="alert alert-primary">
-                    <strong>{{ conversation.role|capfirst }}:</strong> {{ conversation.content }}
-                </div>
+        {% for user_convo, ai_convo in paired_conversations %}
+    <div class="row my-2">
+        <div class="col-md-6">
+            <div class="alert alert-primary">
+                <strong>{{ user_convo.role|capfirst }}:</strong> {{ user_convo.content }}
             </div>
-            <div class="col-md-6">
-                {% with assistant=conversation.conversation_id|get_assistant_for_user %}
-                {% if assistant %}
+        </div>
+        <div class="col-md-6">
+            {% if ai_convo %}
                 <div class="alert alert-light">
-                    <strong>{{ assistant.role|capfirst }}:</strong> {{ assistant.content }}
+                    <strong>{{ ai_convo.role|capfirst }}:</strong> {{ ai_convo.content }}
                     <br>
                     <small>
-                        <strong>Model:</strong> {{ assistant.model_name }} |
-                        <strong>Tokens:</strong> {{ assistant.token_usage }} |
-                        <strong>Time:</strong> {{ assistant.elapsed_time }} seconds |
-                        <strong>Temperature:</strong> {{ assistant.temperature }} |
-                        <strong>Top K:</strong> {{ assistant.top_k }} |
-                        <strong>Top P:</strong> {{ assistant.top_p }}
+                        <strong>Model:</strong> {{ ai_convo.model_name }} |
+                        <strong>Tokens:</strong> {{ ai_convo.token_usage }} |
+                        <strong>Time:</strong> {{ ai_convo.elapsed_time }} seconds |
+                        <strong>Temperature:</strong> {{ ai_convo.temperature }} |
+                        <strong>Top K:</strong> {{ ai_convo.top_k }} |
+                        <strong>Top P:</strong> {{ ai_convo.top_p }}
                     </small>
                 </div>
-                {% else %}
-                <div class="alert alert-warning">
-                    Awaiting assistant response...
+            {% else %}
+                <div class="alert alert-light">
+                    <strong>No response available.</strong>
                 </div>
-                {% endif %}
-                {% endwith %}
+            {% endif %}
+        </div>
+    </div>
+{% endfor %}
 
-            </div>
-        </div>
-        {% endif %}
-        {% empty %}
-        <div class="alert alert-warning">
-            No conversation history available.
-        </div>
-        {% endfor %}
     </div>
 </div>
 
 <style>
     .conversation-history {
-        background-color: #f0f8ff;
-        border-radius: 10px;
-        max-height: 80vh;
-        overflow-y: auto;
+        background-color: #f0f8ff; /* Light background for conversation history */
+        border-radius: 10px; /* Rounded corners */
+        max-height: 80vh; /* Set max height for overflow */
+        overflow-y: auto; /* Enable scrolling */
     }
-
     h2 {
-        font-family: 'Lato', sans-serif;
+        font-family: 'Lato', sans-serif; /* Custom font for headings */
         font-weight: 700;
     }
-
     h3 {
-        font-family: 'Roboto', sans-serif;
+        font-family: 'Roboto', sans-serif; /* Custom font for subheadings */
         font-weight: 500;
     }
-
     .alert-primary {
-        background-color: #d1e7dd;
-        color: #0f5132;
+        background-color: #d1e7dd; /* User message background color */
+        color: #0f5132; /* User message text color */
     }
-
     .alert-light {
-        background-color: #e2e3e5;
-        color: #383d41;
+        background-color: #e2e3e5; /* AI message background color */
+        color: #383d41; /* AI message text color */
     }
 </style>
 {% endblock %}
