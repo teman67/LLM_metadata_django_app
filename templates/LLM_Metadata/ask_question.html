@@ -213,6 +213,17 @@
     document.querySelector('[data-bs-toggle="collapse"][data-bs-target="#conversationHistory"]').addEventListener('click', function () {
         this.textContent = this.getAttribute('aria-expanded') === 'true' ? 'Hide Conversation History' : 'Show Conversation History';
     });
+
+    // Clear conversation data when leaving the page
+    window.addEventListener('beforeunload', function () {
+        sessionStorage.removeItem('conversationData');
+    });
+
+    // Optionally, load data from sessionStorage when the page loads
+    document.addEventListener('DOMContentLoaded', function () {
+        sessionStorage.setItem('conversationData', JSON.stringify([]));
+    });
+
 </script>
 
 {% endblock %}

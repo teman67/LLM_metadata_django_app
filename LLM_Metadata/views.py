@@ -59,115 +59,92 @@ def conversation_view(request):
 
 @login_required
 def ask_question_view(request):
-    if request.method == 'POST':
-        form = QuestionForm(request.POST, request.FILES)  # Include request.FILES to handle file uploads
-        if form.is_valid():
-            question = form.cleaned_data['question']
-            model = form.cleaned_data['model']
-            max_tokens = form.cleaned_data['max_tokens']
-            temperature = form.cleaned_data['temperature']
-            top_k = form.cleaned_data['top_k']
-            top_p = form.cleaned_data['top_p']
-            file_upload = form.cleaned_data.get('file_upload')  # Get the uploaded file if available
-            
-            # Retrieve or generate a conversation ID
-            conversation_id = request.session.get('current_conversation_id', None)
-            if not conversation_id:
-                conversation_id = uuid.uuid4()
-                request.session['current_conversation_id'] = str(conversation_id)
+    # Only clear the conversation when a fresh GET request is made (i.e., the user is revisiting)
+    if request.method == 'GET':
+        request.session.pop('current_conversation_id', None)
 
-            # Fetch previous conversation history
-            previous_conversations = Conversation.objects.filter(
-                conversation_id=conversation_id
-            ).order_by('timestamp')
+    form = QuestionForm(request.POST or None, request.FILES or None)  # Simplify form instantiation
+    if request.method == 'POST' and form.is_valid():
+        question = form.cleaned_data['question']
+        model = form.cleaned_data['model']
+        max_tokens = form.cleaned_data['max_tokens']
+        temperature = form.cleaned_data['temperature']
+        top_k = form.cleaned_data['top_k']
+        top_p = form.cleaned_data['top_p']
+        file_upload = form.cleaned_data.get('file_upload')
 
-            # Format history for the API
-            api_messages = [
-                {"role": conv.role, "content": conv.content}
-                for conv in previous_conversations
-            ]
-            # Add the new user question to the messages list
-            api_messages.append({"role": "user", "content": question})
+        # Generate or get a conversation ID
+        conversation_id = request.session.get('current_conversation_id')
+        if not conversation_id:
+            conversation_id = str(uuid.uuid4())
+            request.session['current_conversation_id'] = conversation_id
 
-            # Handle file upload (if necessary)
-            file_content = ''
-            if file_upload:
-                file_content = file_upload.read().decode('utf-8')  # Decode the byte content to a string
-                # Optionally, add additional formatting/cleaning here
+        # Build conversation history for the API
+        previous_conversations = Conversation.objects.filter(
+            conversation_id=conversation_id
+        ).order_by('timestamp')
 
-            # Include the uploaded file content in the messages
-            if file_content:
-                api_messages.append({"role": "user", "content": f"Here is some additional context from the uploaded file: {file_content}"})
+        api_messages = [{"role": conv.role, "content": conv.content} for conv in previous_conversations]
+        api_messages.append({"role": "user", "content": question})
 
-            try:
-                # Query the API with the conversation history
-                response = query_api(api_messages, model, temperature, max_tokens, top_k, top_p)
+        file_content = ''
+        if file_upload:
+            file_content = file_upload.read().decode('utf-8')
+            api_messages.append({"role": "user", "content": f"Here is some additional context from the uploaded file: {file_content}"})
 
-                if 'error' not in response:
-                    # Save the user question
-                    user_conversation = Conversation.objects.create(
-                        role='user',
-                        content=question,
-                        username=request.user.username,
-                        conversation_id=conversation_id,
-                        timestamp=timezone.now(),
-                        model_name=model,
-                        token_usage=response['response_tokens'],
-                        elapsed_time=round(response['elapsed_time'], 2),
-                        temperature=temperature,
-                        top_k=top_k,
-                        top_p=top_p,
-                        file_upload=file_upload
-                    )
-                    
-                    # Save the AI response
-                    Conversation.objects.create(
-                        role='assistant',
-                        content=response['content'],
-                        username=request.user.username,
-                        conversation_id=conversation_id,
-                        timestamp=timezone.now(),
-                        model_name=model,
-                        token_usage=response['response_tokens'],
-                        elapsed_time=round(response['elapsed_time'], 2),
-                        temperature=temperature,
-                        top_k=top_k,
-                        top_p=top_p,
-                    )
-                    
-                else:
-                    error_message = mark_safe(
-                        f"An error occurred while contacting the model: Please contact <a href='mailto:amirhossein.bayani@gmail.com'>admin</a>"
-                    )
-                    django_messages.error(request, error_message)
-
-            except Exception as e:
-                error_message = mark_safe(
-                    f"An error occurred while contacting the model: Please contact <a href='mailto:amirhossein.bayani@gmail.com'>admin</a>"
+        try:
+            response = query_api(api_messages, model, temperature, max_tokens, top_k, top_p)
+            if 'error' not in response:
+                # Save user question
+                Conversation.objects.create(
+                    role='user',
+                    content=question,
+                    username=request.user.username,
+                    conversation_id=conversation_id,
+                    timestamp=timezone.now(),
+                    model_name=model,
+                    token_usage=response['response_tokens'],
+                    elapsed_time=round(response['elapsed_time'], 2),
+                    temperature=temperature,
+                    top_k=top_k,
+                    top_p=top_p,
+                    file_upload=file_upload
                 )
-                django_messages.error(request, error_message)
+                # Save AI response
+                Conversation.objects.create(
+                    role='assistant',
+                    content=response['content'],
+                    username=request.user.username,
+                    conversation_id=conversation_id,
+                    timestamp=timezone.now(),
+                    model_name=model,
+                    token_usage=response['response_tokens'],
+                    elapsed_time=round(response['elapsed_time'], 2),
+                    temperature=temperature,
+                    top_k=top_k,
+                    top_p=top_p
+                )
+            else:
+                django_messages.error(request, "An error occurred while contacting the model. Please try again or contact support.")
 
-    else:
-        form = QuestionForm()
+        except Exception as e:
+            django_messages.error(request, "An error occurred while contacting the model. Please try again or contact support.")
 
-    # Retrieve all messages in the current conversation
+    # Get the conversation for the current session ID
     conversation_id = request.session.get('current_conversation_id')
-    if conversation_id:
-        conversations = Conversation.objects.filter(conversation_id=conversation_id)
-    else:
-        conversations = []
+    conversations = Conversation.objects.filter(conversation_id=conversation_id) if conversation_id else []
 
     # Pair user and assistant messages
-    paired_conversations = []
-    for i in range(0, len(conversations) - 1, 2):
-        user_convo = conversations[i + 1] if (i + 1) < len(conversations) else None
-        ai_convo = conversations[i]
-        paired_conversations.append((user_convo, ai_convo))
+    paired_conversations = [
+        (conversations[i + 1] if (i + 1) < len(conversations) else None, conversations[i])
+        for i in range(0, len(conversations) - 1, 2)
+    ]
 
     return render(request, 'LLM_Metadata/ask_question.html', {
         'form': form,
         'conversations': conversations,
-        'paired_conversations': paired_conversations  # Pass the paired conversations to the template
+        'paired_conversations': paired_conversations
     })
+
 
 
