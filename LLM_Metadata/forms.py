@@ -28,6 +28,7 @@ class QuestionForm(forms.Form):
     max_tokens = forms.IntegerField(
         initial=600,
         min_value=1,
+        max_value=3000,
         label="Max Tokens",
         widget=forms.NumberInput(attrs={'class': 'form-control'})
     )
@@ -41,6 +42,7 @@ class QuestionForm(forms.Form):
     top_k = forms.IntegerField(
         initial=40,
         min_value=0,
+        max_value=100,
         label="Top K",
         widget=forms.NumberInput(attrs={'class': 'form-control'})
     )
@@ -67,3 +69,27 @@ class QuestionForm(forms.Form):
                 raise ValidationError(f"Unsupported file type: {ext}. Allowed types are: {', '.join(valid_extensions)}.")
 
         return file
+    
+    def clean_max_tokens(self):
+        max_tokens = self.cleaned_data['max_tokens']
+        if not (1 <= max_tokens <= 3000):
+            raise forms.ValidationError("Max tokens must be between 1 and 3000.")
+        return max_tokens
+
+    def clean_temperature(self):
+        temperature = self.cleaned_data['temperature']
+        if not (0 <= temperature <= 1):
+            raise forms.ValidationError("Temperature must be between 0 and 1.")
+        return temperature
+
+    def clean_top_p(self):
+        top_p = self.cleaned_data['top_p']
+        if not (0 <= top_p <= 1):
+            raise forms.ValidationError("Top-p must be between 0 and 1.")
+        return top_p
+
+    def clean_top_k(self):
+        top_k = self.cleaned_data['top_k']
+        if not (0 <= top_k <= 100):
+            raise forms.ValidationError("Top-k must be between 0 and 100.")
+        return top_k
