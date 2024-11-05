@@ -27,9 +27,9 @@
                                                 <strong>{{ user_convo.role|capfirst }}:</strong> {{ user_convo.content }}
                                             </div>
                                             {% if user_convo.file_upload %}
-                                            <a href="{{ user_convo.file_upload.url }}" class="btn btn-secondary btn-sm mb-0" download>
+                                            <button class="btn btn-secondary btn-sm mb-0 file-preview-button" data-file-url="{{ user_convo.file_upload.url }}" data-file-name="{{ user_convo.file_upload.name }}">
                                                 <i class="fas fa-file-download"></i>
-                                            </a>
+                                            </button>
                                             {% endif %}
                                         </div>
                                     </div>
@@ -67,6 +67,22 @@
     {% endif %}
 </div>
 
+<!-- Custom Modal for File Preview -->
+<div id="filePreviewModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <span class="close">&times;</span>
+            <h5 class="modal-title">File Preview</h5>
+        </div>
+        <div class="modal-body">
+            <iframe id="filePreview" style="width: 100%; height: 400px;" frameborder="0"></iframe>
+            <div class="mt-3 text-right">
+                <button id="downloadButton" class="btn btn-primary">Download File</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const buttons = document.querySelectorAll('.toggle-button');
@@ -81,6 +97,43 @@
                 }
             });
         });
+
+        // Handle file preview button click
+        const previewButtons = document.querySelectorAll('.file-preview-button');
+        previewButtons.forEach(button => {
+            button.addEventListener('click', function () {
+                const fileUrl = this.getAttribute('data-file-url');
+                
+                // Set the iframe source for preview
+                document.getElementById('filePreview').src = fileUrl;
+
+                // Show the modal
+                document.getElementById('filePreviewModal').style.display = 'flex'; // Use flex to center the modal
+
+                // Handle download button click to download the file
+                const downloadButton = document.getElementById('downloadButton');
+                downloadButton.onclick = function () {
+                    const a = document.createElement('a');
+                    a.href = fileUrl;
+                    a.download = ''; // You can set a filename if you want
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                };
+            });
+        });
+
+        // Handle closing the modal
+        const modal = document.getElementById('filePreviewModal');
+        const closeButton = document.querySelector('.close');
+        closeButton.onclick = function () {
+            modal.style.display = 'none';
+        };
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        };
     });
 </script>
 
@@ -90,12 +143,10 @@
         border-radius: 10px;
         max-height: 80vh;
         overflow-y: auto;
-        
     }
     h2, h5 {
         font-family: 'Lato', sans-serif;
         font-weight: 700;
-        
     }
     .alert-primary {
         background-color: #d1e7dd;
@@ -110,6 +161,38 @@
         color: #007bff;
         font-size: large;
         font-weight: bold;
+    }
+    .modal {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+    }
+    .modal-content {
+        background-color: white;
+        padding: 20px;
+        border-radius: 8px;
+        width: 80%;
+        max-width: 600px;
+        position: relative; /* For positioning close button */
+    }
+    .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+    .close:hover,
+    .close:focus {
+        color: black;
+        text-decoration: none;
     }
 </style>
 {% endblock %}
