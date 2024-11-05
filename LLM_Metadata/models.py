@@ -22,7 +22,11 @@ class Conversation(models.Model):
     temperature = models.FloatField(null=True, blank=True)
     top_k = models.IntegerField(null=True, blank=True)
     top_p = models.FloatField(null=True, blank=True)
+    file_upload = models.FileField(upload_to='file_uploads/', null=True, blank=True)
 
     class Meta:
         db_table = 'conversations'
         ordering = ['-timestamp']
+
+    def __str__(self):
+        return f"{self.role} - {self.timestamp} - {self.username}"

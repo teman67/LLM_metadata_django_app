@@ -51,7 +51,7 @@ class QuestionForm(forms.Form):
         label="Top P",
         widget=forms.NumberInput(attrs={'class': 'form-control'})
     )
-    file_upload = forms.FileField(required=False, label='Upload File')
+    file_upload = forms.FileField(required=False)
 
     def clean_file_upload(self):
         file = self.cleaned_data.get('file_upload')

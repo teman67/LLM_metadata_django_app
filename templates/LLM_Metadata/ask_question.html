@@ -110,8 +110,15 @@
             {% for user_convo, ai_convo in paired_conversations %}
             <div class="row ">
                 <div class="col-md-4">
-                    <div class="alert alert-primary">
-                        <strong>{{ user_convo.role|capfirst }}:</strong> {{ user_convo.content }}
+                    <div class="alert alert-primary d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>{{ user_convo.role|capfirst }}:</strong> {{ user_convo.content }}
+                        </div>
+                        {% if user_convo.file_upload %}
+                        <a href="{{ user_convo.file_upload.url }}" class="btn btn-secondary btn-sm mt-2" download>
+                            <i class="fas fa-file-download"></i>
+                        </a>
+                        {% endif %}
                     </div>
                 </div>
                 <div class="col-md-8">
