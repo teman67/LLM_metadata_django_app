@@ -10,7 +10,7 @@ from django.contrib import messages as django_messages
 from django.utils.safestring import mark_safe
 from .utils import query_api  # Assuming query_api is refactored to a helper function
 import uuid
-
+from collections import defaultdict
 
 def home(request):
     
@@ -47,14 +47,21 @@ def conversation_view(request):
     # Fetch conversations for the logged-in user, newest first
     conversations = Conversation.objects.filter(username=request.user).order_by('-timestamp')
 
-    # Pair user and assistant messages
-    paired_conversations = []
+    # Group conversations by date
+    grouped_conversations = defaultdict(list)
     for i in range(0, len(conversations) - 1, 2):
         user_convo = conversations[i + 1] if (i + 1) < len(conversations) else None
         ai_convo = conversations[i]
-        paired_conversations.append((user_convo, ai_convo))
+        convo_date = ai_convo.timestamp.date()  # Group by date of the assistant's response
+        grouped_conversations[convo_date].append((user_convo, ai_convo))
 
-    return render(request, 'LLM_Metadata/conversation.html', {'form': form, 'paired_conversations': paired_conversations})
+    # Convert defaultdict to a sorted dictionary (sorted by date)
+    grouped_conversations = dict(sorted(grouped_conversations.items(), reverse=True))
+
+    return render(request, 'LLM_Metadata/conversation.html', {
+        'form': form,
+        'grouped_conversations': grouped_conversations
+    })
 
 
 @login_required
