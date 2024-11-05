@@ -69,7 +69,7 @@ def ask_question_view(request):
             top_k = form.cleaned_data['top_k']
             top_p = form.cleaned_data['top_p']
             file_upload = form.cleaned_data.get('file_upload')  # Get the uploaded file if available
-
+            
             # Retrieve or generate a conversation ID
             conversation_id = request.session.get('current_conversation_id', None)
             if not conversation_id:
@@ -117,6 +117,7 @@ def ask_question_view(request):
                         temperature=temperature,
                         top_k=top_k,
                         top_p=top_p,
+                        file_upload=file_upload
                     )
                     
                     # Save the AI response
