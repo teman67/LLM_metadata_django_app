@@ -35,9 +35,12 @@
                 
                     <!-- Question Input in its own row -->
                     <div class="row mb-3">
-                        <div class="col-md-12">
+                        <div class="col-md-8">
                             {{ form.question.label_tag }}
                             {{ form.question|add_class:"form-control" }}
+                        </div>
+                        <div class="col-md-4">
+                            <button type="button" class="btn btn-outline-secondary mt-4" id="usePredefinedPrompt" style=" font-weight: 700;">Use Predefined Prompt</button>
                         </div>
                     </div>
                 
@@ -55,8 +58,6 @@
                         </div>
                     </div>
 
-
-                
                     <!-- Other inputs in a single row -->
                     <div class="row">
                         <div class="col-md-2">
@@ -108,7 +109,7 @@
         <div class="conversation-history border p-3 rounded bg-light">
             {% if conversations %}
             {% for user_convo, ai_convo in paired_conversations %}
-            <div class="row ">
+            <div class="row">
                 <div class="col-md-4">
                     <div class="alert alert-primary d-flex justify-content-between align-items-center">
                         <div>
@@ -151,6 +152,19 @@
 </div>
 
 <script>
+    // Predefined prompt
+    const predefinedPrompt = "Create a non-populated metadata schema for a tensile test using the uploaded raw data. The metadata schema should follow JSON schema standards, as documented in https://json-schema.org/";
+
+    // Function to toggle question input with predefined prompt
+    document.getElementById('usePredefinedPrompt').addEventListener('click', function() {
+        const questionInput = document.getElementById('{{ form.question.id_for_label }}');
+        if (questionInput.value === predefinedPrompt) {
+            questionInput.value = ''; // Clear the text if it matches the predefined prompt
+        } else {
+            questionInput.value = predefinedPrompt; // Set the text if it's empty or different
+        }
+    });
+    
     document.getElementById('fileUpload').addEventListener('change', function(event) {
         const fileInput = event.target;
         const file = fileInput.files[0];
