@@ -11,6 +11,7 @@ from django.utils.safestring import mark_safe
 from .utils import query_api  # Assuming query_api is refactored to a helper function
 import uuid
 from collections import defaultdict
+import json
 
 def home(request):
     
@@ -154,4 +155,24 @@ def ask_question_view(request):
     })
 
 
+def json_viewer(request):
+    context = {}
 
+    if request.method == "POST" and request.FILES.get("jsonFile"):
+        json_file = request.FILES["jsonFile"]
+
+        try:
+            json_data = json.load(json_file)
+
+            # Render JSON as a raw display
+            context['json_data'] = json.dumps(json_data, indent=4)
+
+            # Check if JSON data is a list of dictionaries to display as a table
+            if isinstance(json_data, list) and all(isinstance(item, dict) for item in json_data):
+                context['is_table'] = True
+                context['table_data'] = json_data
+
+        except json.JSONDecodeError:
+            context['error'] = "Invalid JSON file. Please upload a valid JSON file."
+
+    return render(request, 'LLM_Metadata/json_viewer.html', context)
