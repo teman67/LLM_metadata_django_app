@@ -217,12 +217,17 @@
         background-color: rgba(0, 0, 0, 0.5);
     }
     .modal-content {
-        background-color: white;
-        border-radius: 10px;
-        padding: 20px;
-        width: 80%;
-        max-width: 600px;
+    background-color: white;
+    border-radius: 10px;
+    padding: 20px;
+    width: 80%;
+    max-width: 600px;
+    max-height: 90vh; /* Limit overall height */
+    overflow-y: auto; /* Ensure content inside the modal scrolls */
     }
+
+    
+
     .close {
         color: #aaa;
         float: right;
