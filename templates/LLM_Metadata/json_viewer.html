@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON File Visualizer and Editor</title>
+    <!-- Bootstrap CSS -->
+    
+    <style>
+        body {
+            color: white;
+            font-family: Arial, sans-serif;
+            height: 100vh;
+            background: #1a1a1a;
+        }
+        .container {
+            background: rgba(0, 0, 0, 0.8);
+           padding: 30px;
+            border-radius: 10px;
+            max-width: 70%;
+        }
+        .scrollable-json, .edit-area {
+            max-height: 60vh; /* Increased height */
+            overflow-y: auto;
+            padding: 10px;
+            background: #2a2a2a;
+            border-radius: 5px;
+        }
+        textarea {
+            width: 100%;
+            height: 60vh; 
+            font-family: monospace;
+            font-size: 14px;
+        }
+    </style> 
+</head>
+<body>
+    <div class="d-flex justify-content-center align-items-center" style="height: 100vh;">
+        <div class="container">
+            <h1 class="text-center">JSON File Visualizer and Editor</h1>
+            <form id="uploadForm" action="{% url 'json_viewer' %}" method="post" enctype="multipart/form-data" class="my-3 text-center">
+                {% csrf_token %}
+                <label for="jsonFile" class="form-label">Choose a JSON file:</label>
+                <input type="file" id="jsonFile" name="jsonFile" accept=".json" class="form-control-file my-2" required>
+                <button type="submit" class="btn btn-primary">Upload</button>
+            </form>
+
+            {% if json_data %}
+                <div class="row">
+                    <div class="col-md-6">
+                        <h2>Raw JSON Data</h2>
+                        <div id="rawJson" class="scrollable-json text-left text-light">{{ json_data|safe }}</div>
+                    </div>
+                    <div class="col-md-6">
+                        <h2>Edit JSON</h2>
+                        <div class="edit-area">
+                            <textarea id="editJson" class="form-control">{{ json_data|safe }}</textarea>
+                        </div>
+                        <button onclick="downloadEditedJson()" class="btn btn-success mt-3">Download Edited JSON</button>
+                    </div>
+                </div>
+
+                {% if is_table %}
+                    <h2 class="mt-4">JSON as a Table</h2>
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-dark">
+                            <thead>
+                                <tr>
+                                    {% for key in table_data.0.keys %}
+                                        <th>{{ key }}</th>
+                                    {% endfor %}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in table_data %}
+                                    <tr>
+                                        {% for value in item.values %}
+                                            <td>{{ value }}</td>
+                                        {% endfor %}
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        function downloadEditedJson() {
+            try {
+                const editedJson = JSON.parse(document.getElementById("editJson").value);
+                const blob = new Blob([JSON.stringify(editedJson, null, 4)], { type: "application/json" });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = "edited_data.json";
+                a.click();
+                URL.revokeObjectURL(url);
+            } catch (e) {
+                alert("Invalid JSON format. Please correct the JSON content.");
+            }
+        }
+    </script>
+</body>
+</html>
+{% endblock content %}
