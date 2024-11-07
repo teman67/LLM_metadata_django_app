@@ -1,12 +1,12 @@
 /* static/css/style.css */
-body {
-    font-family: 'Roboto', sans-serif; /* Using Google Fonts */
-    background: url('https://res.cloudinary.com/dlthn5m1i/image/upload/v1724674617/rm378-09_xeqzie.jpg') no-repeat center center fixed; 
-    background-size: cover;
-}
+/* body { */
+    /* font-family: 'Roboto', sans-serif; Using Google Fonts */
+    /* background: url('https://res.cloudinary.com/dlthn5m1i/image/upload/v1724674617/rm378-09_xeqzie.jpg') no-repeat center center fixed;  */
+    /* background-size: cover; */
+/* } */
 
-.content-wrapper {
-    padding: 40px; /* Add padding for better spacing */
-    border-radius: 15px; /* Slightly rounded corners */
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5); /* Add a shadow for depth */
-}
+/* .content-wrapper { */
+    /* padding: 40px; Add padding for better spacing */
+    /* border-radius: 15px; Slightly rounded corners */
+    /* box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5); Add a shadow for depth */
+/* } */
