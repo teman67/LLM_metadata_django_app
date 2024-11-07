@@ -13,7 +13,7 @@
         </div>
     </div>
     <div class="row">
-        <div class="col-md-8 mt-3 offset-md-2">
+        <div class="col-md-6 offset-md-3 mt-3">
             <form class="signup p-4 border rounded shadow" id="signup_form" method="post" action="{% url 'account_signup' %}">
                 {% csrf_token %}
                 {{ form.as_p }}
@@ -28,23 +28,31 @@
 
 <style>
     h3 {
-        font-family: 'Lato', sans-serif; /* Custom font for headings */
-        font-weight: 700; /* Bold for emphasis */
+        font-family: 'Lato', sans-serif;
+        font-weight: 700;
     }
     .lead {
-        font-family: 'Roboto', sans-serif; /* Custom font for body text */
-        font-weight: 400; /* Normal weight */
+        font-family: 'Roboto', sans-serif;
+        font-weight: 400;
     }
     .signup {
-        background-color: #f8f9fa; /* Light background for the form */
+        background-color: #f8f9fa;
     }
     button.btn-primary {
-        background-color: #007bff; /* Primary button color */
-        border: none; /* Remove border */
-        font-size: 1.2em; /* Larger text for button */
+        background-color: #007bff;
+        border: none;
+        font-size: 1.2em;
     }
     button.btn-primary:hover {
-        background-color: #0056b3; /* Darker shade on hover */
+        background-color: #0056b3;
+    }
+    /* Custom styles for centering form input placeholders and making uniform input field sizes */
+    .signup input[type="text"], .signup input[type="email"], .signup input[type="password"] {
+        width: 100%; /* Full-width input */
+        padding: 7px;
+        font-size: 1em;
+        text-align: center; /* Center text inside the input */
+        margin-bottom: 5px;
     }
 </style>
 {% endblock %}

@@ -10,12 +10,12 @@
     <div class="row">
         <div class="col-md-8 mt-3 offset-md-2 text-center">
             <h3 class="text-primary">{% trans "Sign In" %}</h3>
-            <p class="lead text-muted">{% blocktrans %}Welcome back to the MetaData Schema Builder! To leave a comment or like a post, please log in. If you have not created an account yet, then <a class="link" href="{{ signup_url }}">sign up</a> first.{% endblocktrans %}</p>
+            <p class="lead text-muted">{% blocktrans %}Welcome back to the MetaData Schema Builder! To use the app, please log in. If you have not created an account yet, then <a class="link" href="{{ signup_url }}">sign up</a> first.{% endblocktrans %}</p>
         </div>
     </div>
     
     <div class="row">
-        <div class="col-md-8 mt-3 offset-md-2">
+        <div class="col-md-6 offset-md-3 mt-3">
             <form class="login p-4 border rounded shadow" method="POST" action="{% url 'account_login' %}">
                 {% csrf_token %}
                 {{ form.as_p }}
@@ -30,23 +30,31 @@
 
 <style>
     h3 {
-        font-family: 'Lato', sans-serif; /* Custom font for headings */
-        font-weight: 700; /* Bold for emphasis */
+        font-family: 'Lato', sans-serif;
+        font-weight: 700;
     }
     .lead {
-        font-family: 'Roboto', sans-serif; /* Custom font for body text */
-        font-weight: 400; /* Normal weight */
+        font-family: 'Roboto', sans-serif;
+        font-weight: 400;
     }
     .login {
-        background-color: #f8f9fa; /* Light background for the form */
+        background-color: #f8f9fa;
     }
     button.btn-primary {
-        background-color: #007bff; /* Primary button color */
-        border: none; /* Remove border */
-        font-size: 1.2em; /* Larger text for button */
+        background-color: #007bff;
+        border: none;
+        font-size: 1.2em;
     }
     button.btn-primary:hover {
-        background-color: #0056b3; /* Darker shade on hover */
+        background-color: #0056b3;
+    }
+    /* Centered placeholder text and consistent input sizes */
+    .login input[type="text"], .login input[type="email"], .login input[type="password"] {
+        width: 100%;
+        padding: 7px;
+        font-size: 1em;
+        text-align: center; /* Center the text inside input fields */
+        margin-bottom: 5px;
     }
 </style>
 {% endblock %}
