@@ -4,8 +4,9 @@
 {% url 'account_login' as login_url %}
 {% url 'account_signup' as signup_url %}
 {% url 'account_logout' as logout_url %}
-{% url 'conversation' as conversation_url %} 
+{% url 'conversation' as conversation_url %}
 {% url 'ask_question' as ask_question_url %}
+{% url 'json_viewer' as json_viewer_url %}
 
 <!DOCTYPE html>
 <html class="h-100" lang="en">
@@ -47,6 +48,9 @@
         .alert {
             margin-bottom: 20px; /* Ensure there is space below the alert */
         }
+        .navbar {
+            font-size: larger; /* Ensure there is space below the navbar */
+        }
     </style>
 </head>
 
@@ -83,15 +87,17 @@
                         <a class="nav-link {% if request.path == login_url %}active{% endif %}" href="{% url 'account_login' %}">Login</a>
                     </li>
                     {% endif %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.path == json_viewer_url %}active{% endif %}" href="{% url 'json_viewer' %}">Json Viewer</a>
+                    </li>
                 </ul>
+                
                 <span class="navbar-text text-muted">
                     Adventures of a software developer
                 </span>
             </div>
         </div>
     </nav>
-
-    
 
     <main class="flex-shrink-0 main-bg">
         {% block content %}
