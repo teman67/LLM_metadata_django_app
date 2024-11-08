@@ -12,8 +12,13 @@
     <style>
         body {
             color: white;
-            height: 100vh;
             background: #1a1a1a;
+        }
+        .full-height {
+            height: 80vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .container {
             background: rgba(0, 0, 0, 0.8);
@@ -37,7 +42,7 @@
     </style> 
 </head>
 <body>
-    <div class="d-flex justify-content-center align-items-center" style="height: 100vh;">
+    <div class="full-height">
         <div class="container">
             <h1 class="text-center">JSON File Visualizer and Editor</h1>
             <form id="uploadForm" action="{% url 'json_viewer' %}" method="post" enctype="multipart/form-data" class="my-3 text-center">

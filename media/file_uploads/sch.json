@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "title": "TensileTestMetadata",
+  "description": "Basic schema for tensile test metadata. It can be extended.",
+  "type": "object",
+  "required": [
+    "testName",
+    "materialType",
+    "dateConducted"
+  ],
+  "properties": {
+    "testName": {
+      "type": "string",
+      "description": "(Required) - Name of the tensile test."
+    },
+    "materialType": {
+      "type": "string",
+      "description": "(Required) - Type of material being tested.",
+      "enum": [
+        "Metal",
+        "Polymer",
+        "Composite"
+      ]
+    },
+    "dateConducted": {
+      "type": "string",
+      "format": "date-time",
+      "description": "(Required) - Date and time when the test was conducted."
+    },
+    "operatorName": {
+      "type": "string",
+      "description": "(Optional) - Name of the operator who conducted the test."
+    },
+    "specimenDimensions": {
+      "type": "object",
+      "description": "(Optional) - Dimensions of the specimen being tested.",
+      "properties": {
+        "length": {
+          "type": "number",
+          "description": "(Optional) - Length of the specimen in millimeters."
+        },
+        "width": {
+          "type": "number",
+          "description": "(Optional) - Width of the specimen in millimeters."
+        },
+        "thickness": {
+          "type": "number",
+          "description": "(Optional) - Thickness of the specimen in millimeters."
+        }
+      }
+    },
+    "testConditions": {
+      "type": "object",
+      "description": "(Optional) - Conditions under which the test was conducted.",
+      "properties": {
+        "temperature": {
+          "type": "number",
+          "description": "(Optional) - Temperature in Celsius during the test."
+        },
+        "humidity": {
+          "type": "number",
+          "description": "(Optional) - Humidity percentage during the test."
+        }
+      }
+    },
+    "results": {
+      "type": "array",
+      "items": {
+        "title": "TestResult",
+        "type": "object",
+        "properties": {
+          "load": {
+            "type": "number",
+            "description": "(Optional) - Load applied during the test in Newtons."
+          },
+          "displacement": {
+            "type": "number",
+            "description": "(Optional) - Displacement measured during the test in millimeters."
+          }
+        }
+      }
+    },
+    "comments": {
+      "type": "string",
+      "description": "(Optional) - Additional comments or notes regarding the test."
+    }
+  }
+}
