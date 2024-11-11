@@ -176,3 +176,17 @@ def json_viewer(request):
             context['error'] = "Invalid JSON file. Please upload a valid JSON file."
 
     return render(request, 'LLM_Metadata/json_viewer.html', context)
+
+
+def delete_conversation(request, user_convo_id):
+    if request.method == 'POST':
+        # Get the user conversation and delete it
+        user_convo = Conversation.objects.get(id=user_convo_id)
+        
+        ## Get the conversation_id from the user conversation
+        conversation_id = user_convo.conversation_id
+        
+        # Delete both user and assistant conversations related to this conversation_id
+        Conversation.objects.filter(conversation_id=conversation_id).delete()
+
+        return redirect('conversation')  
