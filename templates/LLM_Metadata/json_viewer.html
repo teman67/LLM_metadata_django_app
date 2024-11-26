@@ -35,11 +35,20 @@
         }
         textarea {
             width: 100%;
-            height: 60vh; 
+            height: calc(60vh - 50px); /* Adjust height to leave space for the button */
             font-family: monospace;
             font-size: 14px;
         }
-    </style> 
+        .edit-area-container {
+            position: relative;
+        }
+        .download-button {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+    </style>
 </head>
 <body>
     <div class="full-height">
@@ -53,19 +62,19 @@
             </form>
 
             {% if json_data %}
-                <div class="row">
-                    <div class="col-md-6">
-                        <h2>Raw JSON Data</h2>
-                        <div id="rawJson" class="scrollable-json text-left text-light">{{ json_data|safe }}</div>
-                    </div>
-                    <div class="col-md-6">
-                        <h2>Edit JSON</h2>
-                        <div class="edit-area">
-                            <textarea id="editJson" class="form-control">{{ json_data|safe }}</textarea>
-                        </div>
-                        <button onclick="downloadEditedJson()" class="btn btn-success mt-3">Download Edited JSON</button>
-                    </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <h2>Raw JSON Data</h2>
+                    <div id="rawJson" class="scrollable-json text-left text-light">{{ json_data|safe }}</div>
                 </div>
+                <div class="col-md-6 edit-area-container">
+                    <h2>Edit JSON</h2>
+                    <div class="edit-area">
+                        <textarea id="editJson" class="form-control">{{ json_data|safe }}</textarea>
+                    </div>
+                    <button onclick="downloadEditedJson()" class="btn btn-success download-button">Download Edited JSON</button>
+                </div>
+            </div>
 
                 {% if is_table %}
                     <h2 class="mt-4">JSON as a Table</h2>
