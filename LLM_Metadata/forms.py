@@ -17,11 +17,12 @@ class QuestionForm(forms.Form):
     )
     model = forms.ChoiceField(
         choices=[
-            ('llama3.1:latest', 'Llama 3.1'),
+            # ('llama3.1:latest', 'Llama 3.1'),
             ('llama3.3:latest', 'Llama 3.3'),
             ('mixtral:latest', 'Mixtral'),
-            ('nemotron:latest', 'Nemotron'),
-            ('mistral-large:latest', 'Mistral Large'),
+            # ('nemotron:latest', 'Nemotron'),
+            # ('mistral-large:latest', 'Mistral Large'),
+            ('deepseek-r1:70b', 'DeepSeek-r1-70b'),
         ],
         widget=forms.Select(attrs={'class': 'form-select'}),
         label="Select Model"
