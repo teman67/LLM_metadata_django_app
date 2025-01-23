@@ -22,7 +22,8 @@ class QuestionForm(forms.Form):
             ('mixtral:latest', 'Mixtral'),
             # ('nemotron:latest', 'Nemotron'),
             # ('mistral-large:latest', 'Mistral Large'),
-            ('deepseek-r1:70b', 'DeepSeek-r1-70b'),
+            ('deepseek-coder:6.7b', 'DeepSeek Coder 6.7b'),
+            ('deepseek-r1:70b', 'DeepSeek r1 70b'),
         ],
         widget=forms.Select(attrs={'class': 'form-select'}),
         label="Select Model"
