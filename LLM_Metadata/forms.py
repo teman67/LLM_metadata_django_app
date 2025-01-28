@@ -20,6 +20,7 @@ class QuestionForm(forms.Form):
             # ('llama3.1:latest', 'Llama 3.1'),
             ('llama3.3:latest', 'Llama 3.3'),
             ('mixtral:latest', 'Mixtral'),
+            ('deepseek-v2:latest', 'DeepSeek v2 16b'),
             # ('nemotron:latest', 'Nemotron'),
             # ('mistral-large:latest', 'Mistral Large'),
             ('deepseek-coder:6.7b', 'DeepSeek Coder 6.7b'),
