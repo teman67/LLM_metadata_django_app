@@ -17,14 +17,17 @@ class QuestionForm(forms.Form):
     )
     model = forms.ChoiceField(
         choices=[
+            ('llama3.3:70b-instruct-q8_0', 'llama3.3:70b instruct'),
+            ('qwen3:32b-q8_0', 'qwen3:32b'),
+            ('phi4-reasoning:14b-plus-fp16', 'phi4-reasoning:14b'),
             # ('llama3.1:latest', 'Llama 3.1'),
-            ('llama3.3:latest', 'Llama 3.3'),
-            ('mixtral:latest', 'Mixtral'),
-            ('deepseek-v2:latest', 'DeepSeek v2 16b'),
+            # ('llama3.3:latest', 'Llama 3.3'),
+            # ('mixtral:latest', 'Mixtral'),
+            # ('deepseek-v2:latest', 'DeepSeek v2 16b'),
             # ('nemotron:latest', 'Nemotron'),
             # ('mistral-large:latest', 'Mistral Large'),
-            ('deepseek-coder:6.7b', 'DeepSeek Coder 6.7b'),
-            ('deepseek-r1:70b', 'DeepSeek r1 70b'),
+            # ('deepseek-coder:6.7b', 'DeepSeek Coder 6.7b'),
+            # ('deepseek-r1:70b', 'DeepSeek r1 70b'),
         ],
         widget=forms.Select(attrs={'class': 'form-select'}),
         label="Select Model"
