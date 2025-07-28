@@ -12,6 +12,9 @@ from .utils import query_api  # Assuming query_api is refactored to a helper fun
 import uuid
 from collections import defaultdict
 import json
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
+from django.db import connection
 
 def home(request):
     
@@ -190,3 +193,57 @@ def delete_conversation(request, user_convo_id):
         Conversation.objects.filter(conversation_id=conversation_id).delete()
 
         return redirect('conversation')  
+
+
+@csrf_exempt
+@require_http_methods(["GET", "POST"])
+def health_check(request):
+    """
+    Enhanced health check endpoint that performs database operations
+    to keep Supabase active and prevent auto-pause
+    """
+    try:
+        # Multiple database operations to ensure activity
+        with connection.cursor() as cursor:
+            # Simple query to test connection
+            cursor.execute("SELECT 1")
+            
+        # Count records to ensure ORM works
+        total_conversations = Conversation.objects.count()
+        
+        # Get latest conversation (if any) to test complex query
+        latest_conversation = Conversation.objects.first()
+        
+        # Optional: Create and delete a keep-alive record
+        if request.method == 'POST':
+            keep_alive = Conversation.objects.create(
+                role='assistant',
+                content='automated-keepalive-ping',
+                username='github-actions',
+                conversation_id=uuid.uuid4(),
+                timestamp=timezone.now()
+            )
+            # Immediately delete to avoid clutter
+            keep_alive.delete()
+            activity_type = 'write_operation'
+        else:
+            activity_type = 'read_operation'
+        
+        return JsonResponse({
+            'status': 'healthy',
+            'timestamp': timezone.now().isoformat(),
+            'database': {
+                'total_conversations': total_conversations,
+                'latest_conversation_date': latest_conversation.timestamp.isoformat() if latest_conversation else None,
+                'activity_type': activity_type
+            },
+            'message': 'Supabase database is active'
+        })
+        
+    except Exception as e:
+        return JsonResponse({
+            'status': 'error',
+            'error': str(e),
+            'timestamp': timezone.now().isoformat(),
+            'message': 'Database connection failed'
+        }, status=500)
