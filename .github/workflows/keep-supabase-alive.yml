@@ -3,9 +3,9 @@ name: Keep Supabase Database Active
 
 on:
   schedule:
-    # Run every 3 days at different times to avoid patterns
-    - cron: "0 14 */3 * *" # Every 3 days at 2 PM UTC
-    - cron: "30 9 */3 * *" # Every 3 days at 9:30 AM UTC (offset)
+    # Run every 5 days at different times to avoid patterns
+    - cron: "0 14 */5 * *" # Every 5 days at 2 PM UTC
+    - cron: "30 9 */5 * *" # Every 5 days at 9:30 AM UTC (offset)
   workflow_dispatch: # Allow manual triggering
 
 jobs:
@@ -52,4 +52,4 @@ jobs:
       - name: Log Activity
         run: |
           echo "🎯 Database keep-alive ping completed at $(date)"
-          echo "📊 Next scheduled run will be in ~3 days"
+          echo "📊 Next scheduled run will be in ~5 days"
