@@ -15,6 +15,8 @@ import json
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.db import connection
+from django.views.decorators.cache import cache_page
+from django_ratelimit.decorators import ratelimit
 
 def home(request):
     
@@ -22,6 +24,7 @@ def home(request):
 
 
 @login_required
+@ratelimit(key='user', rate='100/h', method='POST', block=True)
 def conversation_view(request):
     if request.method == 'POST':
         form = ConversationForm(request.POST)
@@ -69,6 +72,7 @@ def conversation_view(request):
 
 
 @login_required
+@ratelimit(key='user', rate='50/h', method='POST', block=True)
 def ask_question_view(request):
     # Only clear the conversation when a fresh GET request is made (i.e., the user is revisiting)
     if request.method == 'GET':
@@ -158,6 +162,7 @@ def ask_question_view(request):
     })
 
 
+@ratelimit(key='ip', rate='50/h', method='POST', block=True)
 def json_viewer(request):
     context = {}
 
@@ -181,6 +186,7 @@ def json_viewer(request):
     return render(request, 'LLM_Metadata/json_viewer.html', context)
 
 
+@ratelimit(key='user', rate='30/h', method='POST', block=True)
 def delete_conversation(request, user_convo_id):
     if request.method == 'POST':
         # Get the user conversation and delete it
@@ -197,6 +203,8 @@ def delete_conversation(request, user_convo_id):
 
 @csrf_exempt
 @require_http_methods(["GET", "POST"])
+@ratelimit(key='ip', rate='200/h', method='ALL', block=True)
+@cache_page(60)  # Cache for 1 minute
 def health_check(request):
     """
     Enhanced health check endpoint that performs database operations
