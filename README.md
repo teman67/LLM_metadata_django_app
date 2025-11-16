@@ -14,6 +14,9 @@ Live webpage: [LLM_Django_app](https://llm-metadata-django-app-835bc5e9a972.hero
 - **Admin Interface**: Django admin panel for managing conversations and metadata
 - **JSON Viewer**: Built-in JSON file viewer and table display functionality
 - **Responsive Design**: Clean, user-friendly interface
+- **🆕 Rate Limiting**: Protect API endpoints from abuse with configurable rate limits
+- **🆕 Caching**: Improve performance with intelligent caching of frequently accessed data
+- **🆕 REST API**: Clean RESTful API endpoints for programmatic access
 
 ## Project Structure
 
@@ -740,6 +743,13 @@ For issues and questions:
 
 ## Changelog
 
+### Version 1.1.0 (Latest)
+- ✨ **NEW**: Rate limiting for API endpoints to prevent abuse
+- ✨ **NEW**: Caching system for improved performance
+- ✨ **NEW**: RESTful API endpoints for programmatic access
+- ✨ **NEW**: Comprehensive test suite for API functionality
+- 📚 **NEW**: Detailed documentation in `RATE_LIMITING_AND_CACHING.md`
+
 ### Version 1.0.0
 - Initial release
 - Multi-model LLM support
@@ -748,3 +758,31 @@ For issues and questions:
 - User authentication
 - JSON viewer
 - Admin interface
+
+## API Endpoints
+
+The application now includes RESTful API endpoints with rate limiting and caching:
+
+### Health Check
+```bash
+GET /api/health/
+# Rate limit: 200 requests/hour
+# Cached for 1 minute
+```
+
+### Conversation Statistics
+```bash
+GET /api/conversations/stats/
+# Rate limit: 50 requests/hour per user
+# Requires authentication
+# Cached for 5 minutes per user
+```
+
+### Delete Conversation
+```bash
+DELETE /api/conversations/<uuid>/
+# Rate limit: 50 requests/hour per user
+# Requires authentication
+```
+
+For complete API documentation, see [RATE_LIMITING_AND_CACHING.md](RATE_LIMITING_AND_CACHING.md).
