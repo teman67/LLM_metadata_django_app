@@ -2,7 +2,7 @@
 A Django web application that provides an interface for interacting with Large Language Models (LLMs) through API calls while storing conversation metadata for analysis and management.
 
 
-Live webpage: [LLM_Django_app](https://llm-metadata-django-app-835bc5e9a972.herokuapp.com/)
+Live webpage: [LLM_Django_app](https://llm-metadata-django-app.onrender.com/)
 
 ## Features
 
