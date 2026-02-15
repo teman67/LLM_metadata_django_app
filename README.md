@@ -1,8 +1,8 @@
 # Django LLM Metadata Application
 A Django web application that provides an interface for interacting with Large Language Models (LLMs) through API calls while storing conversation metadata for analysis and management.
 
-
-Live webpage: [LLM_Django_app](https://llm-metadata-django-app.onrender.com/)
+Live webpage on Heroku: [LLM_Django_app](https://llm-metadata-django-app-2f705a53f205.herokuapp.com/)
+Live webpage on Onrender: [LLM_Django_app](https://llm-metadata-django-app.onrender.com/)
 
 ## Features
 
