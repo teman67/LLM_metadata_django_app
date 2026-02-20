@@ -17,6 +17,7 @@ class QuestionForm(forms.Form):
     )
     model = forms.ChoiceField(
         choices=[
+            ('tinyllama:latest' , 'tinyllama:latest'),
             ('mistral-small3.1:latest' , 'mistral-small3.1'),
             # ('llama3.3:70b-instruct-q8_0', 'llama3.3:70b instruct'),
             # ('qwen3:32b-q8_0', 'qwen3:32b'),
